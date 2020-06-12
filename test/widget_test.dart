@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:simple_mood/main.dart';
-import 'package:simple_mood/mood_application.dart';
+import 'file:///C:/Users/Calvin/Documents/Code/simple_mood/lib/material/mood_application.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
