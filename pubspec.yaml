@@ -1,4 +1,4 @@
-name: simplemood
+name: simple_mood
 description: A simple mood tracking application
 
 # The following line prevents the package from being accidentally published to

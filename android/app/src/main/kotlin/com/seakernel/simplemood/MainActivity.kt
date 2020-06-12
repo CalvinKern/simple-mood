@@ -1,4 +1,4 @@
-package com.seakernel.simplemood
+package com.seakernel.simple_mood
 
 import io.flutter.embedding.android.FlutterActivity
 
