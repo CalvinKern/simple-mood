@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:simple_mood/dashboard/dashboard_page.dart';
+import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/material/mood_theme.dart';
 
 class MoodApp extends StatelessWidget {
@@ -10,10 +12,17 @@ class MoodApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Simple Mood',
+      title: AppLocalizations().appName,
       theme: theme.lightTheme(),
       darkTheme: theme.darkTheme(),
-      home: DashboardPage(title: 'Simple Mood'),
+      home: DashboardPage(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.delegate.supportedLocales,
     );
   }
 }
