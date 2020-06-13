@@ -16,31 +16,26 @@ abstract class Mood implements Built<Mood, MoodBuilder> {
 
   DateTime get date;
 
-  MoodType get type;
+  MoodRating get rating;
 }
 
-@BuiltValueEnum(wireName: 'mood_type')
-class MoodType extends EnumClass {
-  const MoodType._(String name) : super(name);
+@BuiltValueEnum(wireName: 'mood_rating')
+class MoodRating extends EnumClass {
+  const MoodRating._(String name) : super(name);
 
-  static BuiltSet<MoodType> get values => _$moodTypeValues;
+  static BuiltSet<MoodRating> get values => _$moodRatingValues;
 
-  static MoodType valueOf(String name) => _$moodTypeValueOf(name);
+  static MoodRating valueOf(String name) => _$moodRatingValueOf(name);
 
-  static Serializer<MoodType> get serializer => _$moodTypeSerializer;
+  static Serializer<MoodRating> get serializer => _$moodRatingSerializer;
 
-  @BuiltValueEnumConst()
-  static const MoodType miserable = _$moodTypeMiserable;
+  static const MoodRating miserable = _$moodTypeMiserable;
 
-  @BuiltValueEnumConst()
-  static const MoodType unhappy = _$moodTypeUnhappy;
+  static const MoodRating unhappy = _$moodTypeUnhappy;
 
-  @BuiltValueEnumConst()
-  static const MoodType plain = _$moodTypePlain;
+  static const MoodRating plain = _$moodTypePlain;
 
-  @BuiltValueEnumConst()
-  static const MoodType happy = _$moodTypeHappy;
+  static const MoodRating happy = _$moodTypeHappy;
 
-  @BuiltValueEnumConst()
-  static const MoodType ecstatic = _$moodTypeEcstatic;
+  static const MoodRating ecstatic = _$moodTypeEcstatic;
 }
