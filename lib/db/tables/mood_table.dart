@@ -12,10 +12,11 @@ const _COLUMN_RATING = 'rating';
 class MoodTable extends DbTable {
   const MoodTable({Database db}) : super(db: db);
 
-  static Map<String, dynamic> serialize(Mood mood) {
+  /// Option to include ID (not used when inserting a new mood since ID is auto generated)
+  static Map<String, dynamic> serialize(Mood mood, {bool includeId = true}) {
     return <String, dynamic>{
-      _COLUMN_ID: mood.id,
-      _COLUMN_DATE: mood.date.toIso8601String(),
+      if (includeId) _COLUMN_ID: mood.id,
+      _COLUMN_DATE: mood.date.millisecondsSinceEpoch,
       _COLUMN_RATING: mood.rating.name,
     };
   }
@@ -23,26 +24,26 @@ class MoodTable extends DbTable {
   static Mood deserialize(Map<String, dynamic> mood) {
     return Mood((b) => b
       ..id = mood[_COLUMN_ID]
-      ..date = DateTime.parse(mood[_COLUMN_DATE])
+      ..date = DateTime.fromMillisecondsSinceEpoch(mood[_COLUMN_DATE])
       ..rating = MoodRating.valueOf(mood[_COLUMN_RATING]));
   }
 
   @override
   ProxyProvider<Database, MoodTable> getProvider() =>
-      ProxyProvider(lazy: false, update: (_, db, __) => MoodTable(db: db));
+      ProxyProvider(update: (_, db, __) => db == null ? null : MoodTable(db: db));
 
   @override
   Future<void> onCreate(Database db, int version) async {
     await db.execute('''
       create table $_TABLE_NAME ( 
         $_COLUMN_ID integer primary key autoincrement, 
-        $_COLUMN_DATE text not null,
+        $_COLUMN_DATE integer not null,
         $_COLUMN_RATING text not null )
       ''');
   }
 
   Future<Mood> insert(Mood mood) async {
-    final id = await db.insert(_TABLE_NAME, serialize(mood));
+    final id = await db.insert(_TABLE_NAME, serialize(mood, includeId: false));
     return mood.rebuild((mood) => mood..id = id);
   }
 
@@ -69,8 +70,8 @@ class MoodTable extends DbTable {
       _TABLE_NAME,
       columns: [_COLUMN_ID, _COLUMN_DATE, _COLUMN_RATING],
       where: '$_COLUMN_DATE BETWEEN ? AND ?',
-      whereArgs: [rangeStart.toIso8601String(), rangeEnd.toIso8601String()],
+      whereArgs: [rangeStart.millisecondsSinceEpoch, rangeEnd.millisecondsSinceEpoch],
     );
-    return moods.length == 0 ? null : moods.map((mood) => deserialize(mood));
+    return moods.map((mood) => deserialize(mood)).toList();
   }
 }

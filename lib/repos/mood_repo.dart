@@ -1,25 +1,42 @@
 import 'package:provider/provider.dart';
-import 'package:simple_mood/db/tables/db_table.dart';
 import 'package:simple_mood/db/tables/mood_table.dart';
 import 'package:simple_mood/models/mood.dart';
-import 'package:simple_mood/repos/repo_helper.dart';
+
+import 'repo_helper.dart';
 
 class MoodRepo extends Repo {
-  final MoodTable db;
+  final MoodTable _db;
 
-  const MoodRepo({this.db}) : super();
+  MoodRepo([this._db]);
 
   @override
-  ProxyProvider<DbTable, Repo> getDbProvider() =>
-      ProxyProvider<MoodTable, MoodRepo>(lazy: false, update: (_, db, __) => MoodRepo(db: db));
+  ChangeNotifierProxyProvider<MoodTable, MoodRepo> getDbProvider() => ChangeNotifierProxyProvider<MoodTable, MoodRepo>(
+        create: (_) => null,
+        update: (_, db, __) => db == null ? null : MoodRepo(db),
+      );
 
-  Future<Mood> create(Mood mood) async => db.insert(mood);
+  @override
+  bool readyToLoad() => _db != null;
 
-  Future<int> delete(int id) async => db.delete(id);
+  Future<Mood> create(Mood mood) async {
+    final newMood = _db.insert(mood);
+    this.notifyListeners();
+    return newMood;
+  }
 
-  Future<int> updateMood(Mood mood) async => db.update(mood);
+  Future<int> delete(int id) async {
+    final oldId = _db.delete(id);
+    this.notifyListeners();
+    return oldId;
+  }
 
-  Future<Mood> getMood(int id) async => db.getMood(id);
+  Future<int> updateMood(Mood mood) async {
+    final id = _db.update(mood);
+    this.notifyListeners();
+    return id;
+  }
 
-  Future<List<Mood>> getMoods(DateTime rangeStart, DateTime rangeEnd) async => db.getMoods(rangeStart, rangeEnd);
+  Future<Mood> getMood(int id) => _db.getMood(id);
+
+  Future<List<Mood>> getMoods(DateTime rangeStart, DateTime rangeEnd) => _db.getMoods(rangeStart, rangeEnd);
 }

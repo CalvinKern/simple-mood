@@ -47,4 +47,5 @@ class AppLocalizations {
   String get appName => "Simple Mood";
 
   String get todaysMood => Intl.message('Today\'s Mood');
+  String get noMoods => Intl.message('No Moods\nTry adding a new one!');
 }
