@@ -25,6 +25,7 @@ dependencies:
     sdk: flutter
   built_collection: ^4.3.2
   built_value: ^7.1.0
+  charts_flutter: ^0.9.0
   intl: ^0.16.1
   mockito: ^4.1.1
   path: ^1.7.0

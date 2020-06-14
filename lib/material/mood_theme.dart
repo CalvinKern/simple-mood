@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class MoodTheme {
   const MoodTheme();
 
+  Color primarySwatch() => Colors.teal;
+
   ThemeData lightTheme() {
     return ThemeData(
       brightness: Brightness.light,
-      primarySwatch: Colors.teal,
+      primarySwatch: primarySwatch(),
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
@@ -14,7 +16,7 @@ class MoodTheme {
   ThemeData darkTheme() {
     return ThemeData(
       brightness: Brightness.dark,
-      primarySwatch: Colors.teal,
+      primarySwatch: primarySwatch(),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       // A warning shows when using the dark theme including this hides the warning:
       /// I/flutter (25920): Warning: The support for configuring the foreground

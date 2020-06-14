@@ -10,12 +10,12 @@ class MoodList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MoodRepo>(
       builder: (context, repo, child) {
-        if (!repo.readyToLoad()) {
+        if (repo?.readyToLoad() != true) {
           return Center(child: CircularProgressIndicator());
         }
         return FutureBuilder(
           // Set the future every time the consumer builder is called so we refresh data
-          future: repo.getMoods(DateTime.now().add(Duration(days: -7)), DateTime.now()),
+          future: repo.getMoods(DateTime.now().add(Duration(days: -7)).toMidnight(), DateTime.now()),
           builder: (context, AsyncSnapshot<List<Mood>> snapshot) {
             if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
