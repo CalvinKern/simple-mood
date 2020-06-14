@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/db/db_helper.dart';
+import 'package:simple_mood/db/tables/db_table.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 
 void main() {
