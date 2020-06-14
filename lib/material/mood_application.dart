@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/dashboard/dashboard_page.dart';
-import 'package:simple_mood/db/db_helper.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
+import 'package:simple_mood/repos/repo_helper.dart';
 
 import 'mood_theme.dart';
 
@@ -23,7 +23,7 @@ class MoodApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ...DbHelper().dbProviders()
+        ...RepoHelper().repoProviders()
       ],
       child: MaterialApp(
         title: AppLocalizations().appName,

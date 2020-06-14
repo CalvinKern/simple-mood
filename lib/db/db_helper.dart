@@ -6,7 +6,7 @@ import 'tables/db_table.dart';
 import 'tables/mood_table.dart';
 
 /// A private list of tables used in production. This is provided as the default when using this class, to allow testing
-const _productionTables = [
+const _PRODUCTION_TABLES = [
   MoodTable(),
 ];
 
@@ -18,18 +18,20 @@ class DbHelper {
   final List<DbTable> _tables; // List of tables that use the database
   final Future<Database> _database; // The database to use instead of SQFlite
 
-  DbHelper([this._tables = _productionTables, this._database]);
+  const DbHelper([
+    this._tables = _PRODUCTION_TABLES,
+    this._database,
+  ]);
 
   /// Get all of the providers for database access
   List<SingleChildWidget> dbProviders() => [
-      FutureProvider<Database>(lazy: false, create: (_) => _openDatabase()),
-      ..._tables.map((table) => table.getProvider()),
-    ];
+        FutureProvider<Database>(lazy: false, create: (_) => _openDatabase()),
+        ..._tables.map((table) => table.getProvider()),
+      ];
 
   /// Open the database, or use the provided one (testing)
-  Future<Database> _openDatabase() {
-    return _database ?? openDatabase(DB_NAME, version: DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
-  }
+  Future<Database> _openDatabase() =>
+      _database ?? openDatabase(DB_NAME, version: DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
 
   /// Run create on each table
   Future<void> _onCreate(Database db, int version) async {
