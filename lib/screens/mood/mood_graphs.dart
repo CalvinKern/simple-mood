@@ -38,16 +38,18 @@ class _MoodCharts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (moods?.isNotEmpty != true) {
-      return Center(
-          child: Text(
-        AppLocalizations.of(context).noMoods,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headline4,
-      ));
+    if (moods == null || moods.isEmpty == true) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _TodayMood(),
+          _EmptyMood(),
+        ],
+      );
     } else {
       return ListView(
         children: [
+          if (moods.last?.date?.isAfter(DateTime.now().toMidnight()) != true) _TodayMood(),
           _MoodTimeChart(moods: moods),
           _MoodPieChart(moods: moods),
         ],
@@ -56,6 +58,47 @@ class _MoodCharts extends StatelessWidget {
   }
 }
 
+class _EmptyMood extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        AppLocalizations.of(context).noMoods,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.headline4,
+      ),
+    );
+  }
+}
+
+
+/// Today Mood tile
+class _TodayMood extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return _ChartCard(
+      title: AppLocalizations.of(context).addTodaysMood,
+      chartHeight: 96,
+      chart: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: MoodRating.values
+            .map((rating) => MaterialButton(
+                  child: rating.asIcon(),
+                  shape: CircleBorder(),
+                  minWidth: 48,
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  onPressed: () => Provider.of<MoodRepo>(context, listen: false).create(rating),
+                ))
+            .toList(),
+      ),
+    );
+  }
+}
+
+/// Mood Time Chart
+///
+/// Generates series data from list of moods using the factory constructor.
 class _MoodTimeChart extends StatelessWidget {
   final List<charts.Series> data;
 
@@ -65,41 +108,70 @@ class _MoodTimeChart extends StatelessWidget {
     return _MoodTimeChart._internal(data: _convertMoodData(moods), key: key);
   }
 
-  static List<charts.Series<_ChartData, DateTime>> _convertMoodData(List<Mood> moods) {
-    final moodData = moods.map((mood) => _ChartData(mood)).toList();
+  static List<charts.Series<_TimeChartData, DateTime>> _convertMoodData(List<Mood> moods) {
+    final moodData = moods.map((mood) => _TimeChartData(mood)).toList();
+    // TODO: Can use two series here, one for doing colors (offset by .5 so that the color changing is _better_) and one
+    // that is just the data points (custom decorator that only draws points for that series)
+    // This may still look slightly off though, since a 1 - 5 jump might look weird.
     return [
-      charts.Series<_ChartData, DateTime>(
-        id: 'MoodChart',
+      charts.Series<_TimeChartData, DateTime>(
+        id: _TimeChartData.ID,
         data: moodData,
-        colorFn: (mood, _) => _ratingColor(mood.y),
-        domainFn: (mood, _) => mood.x,
-        measureFn: (mood, _) => mood.y,
+        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(MoodTheme().primarySwatch()),
+        domainFn: (mood, _) => mood.date.toMidnight(),
+        measureFn: (mood, _) => mood.rating,
       ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final chartTimeFormatter = charts.TimeFormatterSpec(format: 'd', transitionFormat: 'MMMd', noonFormat: '');
     return _ChartCard(
       title: AppLocalizations.of(context).moodChart,
-      chart: charts.TimeSeriesChart(
-        data,
-        primaryMeasureAxis: charts.NumericAxisSpec(
-          tickProviderSpec: charts.BasicNumericTickProviderSpec(
-            zeroBound: false,
-            dataIsInWholeNumbers: true,
-            desiredTickCount: 5,
+      chart: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: MoodRating.values.map((rating) => rating.asIcon(size: 24)).toList().reversed.toList(),
+            ),
           ),
-        ),
+          Flexible(
+            // TODO: Make scrollable horizontally? Would also need to get more data from the repo, maybe just previous month?
+            // TODO: Add support for showing date when clicking a data point: https://github.com/google/charts/issues/58
+            // TODO: Time labels aren't legible in dark mode
+            child: charts.TimeSeriesChart(
+              data,
+              defaultRenderer: charts.LineRendererConfig(includePoints: true),
+              domainAxis: charts.DateTimeAxisSpec(
+                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                  hour: chartTimeFormatter,
+                  minute: chartTimeFormatter,
+                ),
+              ),
+              primaryMeasureAxis: charts.NumericAxisSpec(
+                viewport: charts.NumericExtents.fromValues([1.0, 5.0]),
+                tickFormatterSpec: charts.BasicNumericTickFormatterSpec((_) => ''), // No axis label, use faces instead
+                tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                  zeroBound: false,
+                  dataIsInWholeNumbers: true,
+                  desiredTickCount: 5,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-
-  static charts.Color _ratingColor(int rating) {
-    return charts.ColorUtil.fromDartColor(MoodTheme().primarySwatch());
-  }
 }
 
+/// Mood Count Pie Chart
+///
+/// Generates series data from list of moods using the factory constructor.
 class _MoodPieChart extends StatelessWidget {
   final List<charts.Series> data;
 
@@ -109,79 +181,49 @@ class _MoodPieChart extends StatelessWidget {
     return _MoodPieChart._internal(data: _convertMoodData(moods), key: key);
   }
 
-  static List<charts.Series<_CountData, int>> _convertMoodData(List<Mood> moods) {
-    // Generate chart data, count each time a key is used in the given moods list
+  static List<charts.Series<_PieCountData, int>> _convertMoodData(List<Mood> moods) {
+    // Generate chart data, count each rating usage in the given moods list
     final counts = Map<MoodRating, int>();
     moods.forEach((mood) => counts[mood.rating] = (counts[mood.rating] ?? 0) + 1);
 
+    // Sort keys for better looking pie chart and don't include unused ratings (makes 100% pie look better)
+    final data = (counts.keys.toList(growable: false)..sort((a, b) => a.index().compareTo(b.index())))
+        .map((rating) => _PieCountData(rating, counts[rating]))
+        .toList(growable: false);
+
+    // TODO: Should use some kind of label for a11y, not just rating color
     return [
-      charts.Series<_CountData, int>(
-        id: 'MoodCount',
-        data: MoodRating.values.toList().map((rating) => _CountData(rating, counts[rating] ?? 0)).toList(),
-        colorFn: (mood, _) => _ratingColor(mood.rating),
-        domainFn: (mood, _) => MoodRating.values.toList().indexOf(mood.rating),
+      charts.Series<_PieCountData, int>(
+        id: _PieCountData.ID,
+        data: data,
+        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(mood.rating.materialColor()),
+        domainFn: (mood, _) => mood.rating.index(),
         measureFn: (mood, _) => mood.count,
-        labelAccessorFn: (mood, _) => mood.count.toString(),
       ),
     ];
-  }
-
-  static charts.Color _ratingColor(MoodRating rating) {
-    switch (rating) {
-      case MoodRating.miserable:
-        return charts.ColorUtil.fromDartColor(Colors.red);
-      case MoodRating.unhappy:
-        return charts.ColorUtil.fromDartColor(Colors.orange);
-      case MoodRating.plain:
-        return charts.ColorUtil.fromDartColor(Colors.yellow);
-      case MoodRating.happy:
-        return charts.ColorUtil.fromDartColor(Colors.lightGreen);
-      case MoodRating.ecstatic:
-        return charts.ColorUtil.fromDartColor(Colors.green);
-      default:
-        throw ArgumentError.value(rating);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return _ChartCard(
       title: AppLocalizations.of(context).moodCount,
-      chart: charts.PieChart(
-        data,
-        defaultRenderer:
-            charts.ArcRendererConfig(arcRendererDecorators: [charts.ArcLabelDecorator()]),
-      ),
+      chart: charts.PieChart(data),
     );
   }
 }
 
-class _ChartData {
-  final DateTime x; // Day
-  final int y; // Rating
-
-  _ChartData(Mood mood)
-      : this.x = mood.date,
-        this.y = MoodRating.values.toList().indexOf(mood.rating) + 1;
-}
-
-class _CountData {
-  final MoodRating rating;
-  final int count;
-
-  _CountData(this.rating, this.count);
-}
-
+/// Generic card structure with variable height
 class _ChartCard extends StatelessWidget {
   final String title;
   final Widget chart;
+  final double chartHeight;
 
-  const _ChartCard({Key key, this.title, this.chart}) : super(key: key);
+  const _ChartCard({Key key, this.title, this.chart, this.chartHeight = 250}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8),
+      margin: EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -192,7 +234,7 @@ class _ChartCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8),
             child: SizedBox(
-              height: 250.0,
+              height: chartHeight,
               child: chart,
             ),
           ),
@@ -200,4 +242,28 @@ class _ChartCard extends StatelessWidget {
       ),
     );
   }
+}
+
+///
+/// Chart data classes
+///
+
+class _TimeChartData {
+  static const ID = 'TimeChart';
+
+  final DateTime date;
+  final int rating; // 1 index based to be more human friendly
+
+  _TimeChartData(Mood mood)
+      : this.date = mood.date,
+        this.rating = mood.rating.index() + 1;
+}
+
+class _PieCountData {
+  static const ID = 'PieCount';
+
+  final int count;
+  final MoodRating rating;
+
+  _PieCountData(this.rating, this.count);
 }

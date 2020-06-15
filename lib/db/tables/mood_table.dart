@@ -69,6 +69,7 @@ class MoodTable extends DbTable {
     final moods = await db.query(
       _TABLE_NAME,
       columns: [_COLUMN_ID, _COLUMN_DATE, _COLUMN_RATING],
+      orderBy: _COLUMN_DATE,
       where: '$_COLUMN_DATE BETWEEN ? AND ?',
       whereArgs: [rangeStart.millisecondsSinceEpoch, rangeEnd.millisecondsSinceEpoch],
     );
