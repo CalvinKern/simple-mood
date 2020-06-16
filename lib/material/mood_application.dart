@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -21,14 +23,19 @@ class MoodApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final analytics = FirebaseAnalytics();
     return MultiProvider(
       providers: [
-        ...RepoHelper().repoProviders()
+        Provider.value(value: analytics),
+        ...RepoHelper().repoProviders(),
       ],
       child: MaterialApp(
         title: AppLocalizations().appName,
         theme: theme.lightTheme(),
         darkTheme: theme.darkTheme(),
+        navigatorObservers: [
+          FirebaseAnalyticsObserver(analytics: analytics),
+        ],
         home: DashboardPage(),
         localizationsDelegates: _LOCALIZATION_DELEGATES,
         supportedLocales: AppLocalizations.delegate.supportedLocales,

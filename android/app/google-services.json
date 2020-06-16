@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "289682241734",
+    "firebase_url": "https://simple-mood.firebaseio.com",
+    "project_id": "simple-mood",
+    "storage_bucket": "simple-mood.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289682241734:android:74886b0a6cfa2bd9d27fc7",
+        "android_client_info": {
+          "package_name": "com.seakernel.simple_mood"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "289682241734-ctijldsnsv6l418alv604c7d01q88j71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeK6fu1LE9D7jR2WpWejd06-4tK50FIPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "289682241734-ctijldsnsv6l418alv604c7d01q88j71.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
