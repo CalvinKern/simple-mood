@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/repos/repo_helper.dart';
 
-import '../dashboard/dashboard_page.dart';
+import '../dashboard/dashboard_container.dart';
 import 'mood_theme.dart';
 
 class MoodApp extends StatelessWidget {
@@ -36,7 +36,7 @@ class MoodApp extends StatelessWidget {
         navigatorObservers: [
           FirebaseAnalyticsObserver(analytics: analytics),
         ],
-        home: DashboardPage(),
+        home: DashboardContainer(),
         localizationsDelegates: _LOCALIZATION_DELEGATES,
         supportedLocales: AppLocalizations.delegate.supportedLocales,
       ),

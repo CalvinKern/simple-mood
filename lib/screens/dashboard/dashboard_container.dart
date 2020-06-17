@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
-import 'package:simple_mood/screens/dashboard/mood_graphs.dart';
-import 'package:simple_mood/screens/dashboard/mood_list.dart';
+import 'package:simple_mood/screens/dashboard/charts_page.dart';
+import 'package:simple_mood/screens/dashboard/list_page.dart';
 
-class DashboardPage extends StatefulWidget {
-  DashboardPage({Key key}) : super(key: key);
+class DashboardContainer extends StatefulWidget {
+  DashboardContainer({Key key}) : super(key: key);
 
   @override
-  _DashboardPageState createState() => _DashboardPageState();
+  _DashboardContainerState createState() => _DashboardContainerState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardContainerState extends State<DashboardContainer> {
   int _currentIndex = 0;
 
   @override
@@ -43,8 +43,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget currentBody() {
     switch (_currentIndex) {
-      case 0: return MoodGraphs();
-      case 1: return MoodList();
+      case 0: return ChartsPage();
+      case 1: return ListPage();
       case 2: return Center(child: Text('Nothing here yet'));
       default: throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
     }

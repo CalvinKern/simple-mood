@@ -7,7 +7,7 @@ import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 import 'package:simple_mood/screens/app/mood_theme.dart';
 
-class MoodGraphs extends StatelessWidget {
+class ChartsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<MoodRepo>(
@@ -22,7 +22,7 @@ class MoodGraphs extends StatelessWidget {
             if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else {
-              return _MoodCharts(moods: snapshot.data);
+              return _Charts(moods: snapshot.data);
             }
           },
         );
@@ -31,10 +31,10 @@ class MoodGraphs extends StatelessWidget {
   }
 }
 
-class _MoodCharts extends StatelessWidget {
+class _Charts extends StatelessWidget {
   final List<Mood> moods;
 
-  const _MoodCharts({Key key, this.moods}) : super(key: key);
+  const _Charts({Key key, this.moods}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
