@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/screens/dashboard/charts_page.dart';
 import 'package:simple_mood/screens/dashboard/list_page.dart';
+import 'package:simple_mood/screens/dashboard/settings_page.dart';
 
 class DashboardContainer extends StatefulWidget {
   DashboardContainer({Key key}) : super(key: key);
@@ -45,7 +46,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
     switch (_currentIndex) {
       case 0: return ChartsPage();
       case 1: return ListPage();
-      case 2: return Center(child: Text('Nothing here yet'));
+      case 2: return SettingsPage();
       default: throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
     }
   }

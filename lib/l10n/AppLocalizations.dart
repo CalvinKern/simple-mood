@@ -85,4 +85,9 @@ class AppLocalizations {
         name: 'deleteMoodBody',
         args: [date, moodRating],
       );
+
+  // Settings Strings
+  String get setDailyReminderTitle => Intl.message('Daily reminder:');
+
+  String get setDailyReminderDateTitle => Intl.message('Receive a notification daily at:');
 }

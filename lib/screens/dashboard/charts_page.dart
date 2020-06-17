@@ -83,7 +83,7 @@ class _TodayMood extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: MoodRating.values
             .map((rating) => MaterialButton(
-                  child: rating.asIcon(),
+                  child: rating.asIcon(context),
                   shape: CircleBorder(),
                   minWidth: 48,
                   padding: EdgeInsets.symmetric(horizontal: 4),
@@ -135,7 +135,7 @@ class _MoodTimeChart extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: MoodRating.values.map((rating) => rating.asIcon(size: 24)).toList().reversed.toList(),
+              children: MoodRating.values.map((rating) => rating.asIcon(context, size: 24)).toList().reversed.toList(),
             ),
           ),
           Flexible(

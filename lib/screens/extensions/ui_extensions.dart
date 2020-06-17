@@ -4,16 +4,20 @@ import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 
 extension DateFormatting on DateTime {
-  String fullFormat() => (DateFormat.yMd()..add_jm()).format(this);
+  String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
 
-  DateTime toMidnight() => DateTime(this.year, this.month, this.day);
+  DateTime toMidnight() => this == null ? null : DateTime(this.year, this.month, this.day);
 }
 
 extension MoodResource on MoodRating {
   int index() => MoodRating.values.toList().indexOf(this);
 
-  // TODO: Could have rating name be localized
-  Icon asIcon({double size = 48}) => Icon(iconData(), size: size, semanticLabel: name, color: materialColor());
+  Icon asIcon(BuildContext context, {double size = 48}) => Icon(
+        iconData(),
+        size: size,
+        semanticLabel: readableString(context),
+        color: materialColor(),
+      );
 
   Color materialColor() {
     switch (this) {
