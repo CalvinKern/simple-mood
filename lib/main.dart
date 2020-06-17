@@ -1,7 +1,7 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/widgets.dart';
 
-import 'material/mood_application.dart';
+import 'screens/app/mood_application.dart';
 
 void main() {
   // Pass all uncaught errors from the framework to Crashlytics.

@@ -1,11 +1,11 @@
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
-import 'package:simple_mood/material/mood_theme.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:simple_mood/screens/app/mood_theme.dart';
 
 class MoodGraphs extends StatelessWidget {
   @override
@@ -70,7 +70,6 @@ class _EmptyMood extends StatelessWidget {
     );
   }
 }
-
 
 /// Today Mood tile
 class _TodayMood extends StatelessWidget {
