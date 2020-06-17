@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 
 extension DateFormatting on DateTime {
@@ -43,6 +44,23 @@ extension MoodResource on MoodRating {
         return Icons.sentiment_satisfied;
       case MoodRating.ecstatic:
         return Icons.sentiment_very_satisfied;
+      default:
+        throw ArgumentError.value(this);
+    }
+  }
+
+  String readableString(BuildContext context) {
+    switch (this) {
+      case MoodRating.miserable:
+        return AppLocalizations.of(context).ratingMiserable;
+      case MoodRating.unhappy:
+        return AppLocalizations.of(context).ratingUnhappy;
+      case MoodRating.plain:
+        return AppLocalizations.of(context).ratingPlain;
+      case MoodRating.happy:
+        return AppLocalizations.of(context).ratingHappy;
+      case MoodRating.ecstatic:
+        return AppLocalizations.of(context).ratingEcstatic;
       default:
         throw ArgumentError.value(this);
     }

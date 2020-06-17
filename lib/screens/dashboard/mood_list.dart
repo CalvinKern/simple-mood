@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
+import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 class MoodList extends StatelessWidget {
@@ -51,20 +52,20 @@ class _MoodList extends StatelessWidget {
 }
 
 class _MoodTile extends StatelessWidget {
-  final Mood mood;
+  final Mood _mood;
 
-  _MoodTile(this.mood);
+  _MoodTile(this._mood);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(mood.rating.name),
-      subtitle: Text(mood.date.fullFormat()),
-      onLongPress: () => _deleteMood(context),
+      title: Text(_mood.rating.readableString(context)),
+      subtitle: Text(_mood.date.fullFormat()),
+      onLongPress: () => _askDeleteMood(context),
     );
   }
 
-  _deleteMood(BuildContext context) async {
-    await Provider.of<MoodRepo>(context, listen: false).delete(mood.id);
+  _askDeleteMood(BuildContext context) async {
+    await DeleteDialog.asDialog(context, _mood);
   }
 }

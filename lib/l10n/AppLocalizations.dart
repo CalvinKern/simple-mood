@@ -54,7 +54,21 @@ class AppLocalizations {
 
   String get pageSettings => 'Settings';
 
-  // Dashboard strings
+  String get ratingMiserable => 'Miserable';
+
+  String get ratingUnhappy => 'Unhappy';
+
+  String get ratingPlain => 'Plain';
+
+  String get ratingHappy => 'Happy';
+
+  String get ratingEcstatic => 'Ecstatic';
+
+  // Action Strings
+
+  String get delete => 'Delete';
+
+  // Dashboard Strings
 
   String get addTodaysMood => Intl.message('Add Today\'s Mood');
 
@@ -63,4 +77,12 @@ class AppLocalizations {
   String get moodCount => Intl.message('Mood Count');
 
   String get noMoods => Intl.message('No Moods\nTry adding a new one!');
+
+  String get deleteMoodTitle => Intl.message('Delete Mood?');
+
+  String deleteMoodBody(String date, String moodRating) => Intl.message(
+        'Delete the entry from $date with mood: $moodRating',
+        name: 'deleteMoodBody',
+        args: [date, moodRating],
+      );
 }
