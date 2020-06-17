@@ -44,10 +44,23 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  String get appName => "Simple Mood";
+  // App Strings
+
+  String get appName => 'Simple Mood';
+
+  String get pageHome => 'Dashboard';
+
+  String get pageCalendar => 'Calendar';
+
+  String get pageSettings => 'Settings';
+
+  // Dashboard strings
 
   String get addTodaysMood => Intl.message('Add Today\'s Mood');
+
   String get moodChart => Intl.message('Mood Chart');
+
   String get moodCount => Intl.message('Mood Count');
+
   String get noMoods => Intl.message('No Moods\nTry adding a new one!');
 }
