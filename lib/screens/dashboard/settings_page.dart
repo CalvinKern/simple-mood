@@ -1,57 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
+import 'package:simple_mood/repos/prefs_repo.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  Widget build(BuildContext context) {
+    return Consumer<PrefsRepo>(
+      builder: (context, prefs, _) {
+        if (prefs?.readyToLoad() != true)
+          return Center(child: CircularProgressIndicator());
+        else
+          return _SettingsPage(prefs);
+      },
+    );
+  }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
-  // Placeholder variables until SharedPreferences is up and running
-  bool _dailyReminderSet = false;
-  TimeOfDay _dailyReminderTime;
+class _SettingsPage extends StatelessWidget {
+  final PrefsRepo _prefs;
+
+  const _SettingsPage(this._prefs, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final dailyReminderSet = _prefs.getDailyReminderSet() ?? false;
+    final dailyReminderTime = _prefs.getDailyReminderTime();
+
     return ListView(
       children: [
         _SettingsTile(
           title: l10n.setDailyReminderTitle,
-          switchValue: _dailyReminderSet,
+          switchValue: dailyReminderSet,
           onChanged: _onDailyReminderChanged,
         ),
-        if (_dailyReminderSet)
+        if (dailyReminderSet)
           _SettingsTile(
             title: l10n.setDailyReminderDateTitle,
-            subtitle: _dailyReminderTime?.format(context),
-            onTap: _onDailyReminderTapped,
+            subtitle: dailyReminderTime.format(context),
+            onTap: () => _onDailyReminderTapped(context, dailyReminderTime),
           ),
       ],
     );
   }
 
-  void _onDailyReminderChanged(bool set) {
-    setState(() {
-      _dailyReminderSet = set;
-      if (set && _dailyReminderTime == null) {
-        _dailyReminderTime = TimeOfDay.now();
-      }
-    });
-  }
+  void _onDailyReminderChanged(bool set) => _prefs.setDailyReminder(set);
 
-  void _onDailyReminderTapped() async {
-    final time = await showTimePicker(context: context, initialTime: _dailyReminderTime);
+  void _onDailyReminderTapped(BuildContext context, TimeOfDay dailyReminderTime) async {
+    final time = await showTimePicker(context: context, initialTime: dailyReminderTime);
     if (time == null) return; // Do nothing on a cancel
 
-    setState(() {
-      _dailyReminderTime = time;
-    });
+    _prefs.setDailyReminderTime(time);
   }
 }
 
-/// A simple wrapper around [SwitchListTile] and [ListTile]. If [switchValue] is non-null, then a [SwitchListTile] will be used
-/// with the provided [switchValue] and [onChanged].
+/// A simple wrapper around [SwitchListTile] and [ListTile]. If [switchValue] is non-null, then a [SwitchListTile] will
+/// be used with the provided [switchValue] and [onChanged].
 class _SettingsTile extends StatelessWidget {
   final String title;
   final String subtitle;

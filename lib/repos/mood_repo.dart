@@ -10,7 +10,7 @@ class MoodRepo extends Repo {
   MoodRepo([this._db]);
 
   @override
-  ChangeNotifierProxyProvider<MoodTable, MoodRepo> getDbProvider() => ChangeNotifierProxyProvider<MoodTable, MoodRepo>(
+  ChangeNotifierProxyProvider<MoodTable, MoodRepo> getProvider() => ChangeNotifierProxyProvider<MoodTable, MoodRepo>(
         create: (_) => null,
         update: (_, db, __) => db == null ? null : MoodRepo(db),
       );
