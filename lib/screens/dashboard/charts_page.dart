@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
+import 'package:simple_mood/repos/prefs_repo.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 import 'package:simple_mood/screens/app/mood_theme.dart';
 
@@ -87,11 +88,16 @@ class _TodayMood extends StatelessWidget {
                   shape: CircleBorder(),
                   minWidth: 48,
                   padding: EdgeInsets.symmetric(horizontal: 4),
-                  onPressed: () => Provider.of<MoodRepo>(context, listen: false).create(rating),
+                  onPressed: () => addMood(context, rating),
                 ))
             .toList(),
       ),
     );
+  }
+
+  void addMood(BuildContext context, MoodRating rating) {
+    Provider.of<MoodRepo>(context, listen: false).create(rating);
+    Provider.of<PrefsRepo>(context, listen: false).delayTodayReminder(AppLocalizations.of(context).dailyReminderNotificationTitle);
   }
 }
 

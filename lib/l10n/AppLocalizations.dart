@@ -90,4 +90,6 @@ class AppLocalizations {
   String get setDailyReminderTitle => Intl.message('Daily reminder:');
 
   String get setDailyReminderDateTitle => Intl.message('Receive a notification daily at:');
+
+  String get dailyReminderNotificationTitle => Intl.message('How\'s your day going?');
 }
