@@ -8,9 +8,7 @@ class NotificationChannel {
   static const METHOD_SET_DAILY_NOTIFICATION = 'setDailyNotification';
 
   static const KEY_DAILY_NOTIFICATION_ON = 'dailyNotificationOn';
-  static const KEY_DAILY_NOTIFICATION_HOUR = 'dailyNotificationHour';
-  static const KEY_DAILY_NOTIFICATION_MINUTE = 'dailyNotificationMinute';
-  static const KEY_DAILY_NOTIFICATION_SKIP_TODAY = 'dailyNotificationSkipToday';
+  static const KEY_DAILY_NOTIFICATION_TIME = 'dailyNotificationTime';
   static const KEY_DAILY_NOTIFICATION_TITLE = 'dailyNotificationTitle';
 
   static const platform = const MethodChannel(CHANNEL);
@@ -22,13 +20,18 @@ class NotificationChannel {
   /// [time] - Required as non null if [notificationOn] is true, the time to have the notification appear
   static Future<void> setDailyNotification(bool notificationOn, {bool skipToday, TimeOfDay time, String notificationTitle}) async {
     assert((time != null && notificationTitle != null) || !notificationOn); // Time has to be present if notification is on
+
+    final now = DateTime.now();
+    DateTime nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    if (nextTime != null && (now.isAfter(nextTime) || skipToday)) {
+      nextTime = nextTime.add(Duration(days: 1));
+    }
+    
     try {
       await platform.invokeMethod(METHOD_SET_DAILY_NOTIFICATION, <String, dynamic>{
         KEY_DAILY_NOTIFICATION_ON: notificationOn,
-        KEY_DAILY_NOTIFICATION_SKIP_TODAY: skipToday,
         if (notificationTitle != null) KEY_DAILY_NOTIFICATION_TITLE: notificationTitle,
-        if (time != null) KEY_DAILY_NOTIFICATION_HOUR: time.hour,
-        if (time != null) KEY_DAILY_NOTIFICATION_MINUTE: time.minute,
+        if (nextTime != null) KEY_DAILY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
       });
     } on PlatformException catch (e) {
       Crashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));

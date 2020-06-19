@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/platform/notification_channel.dart';
 import 'repo_helper.dart';
 

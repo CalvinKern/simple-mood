@@ -19,9 +19,7 @@ object NotificationPlugin {
     private const val REQUEST_DAILY_NOTIFICATION = 0
 
     private const val KEY_DAILY_NOTIFICATION_ON = "dailyNotificationOn"
-    private const val KEY_DAILY_NOTIFICATION_HOUR = "dailyNotificationHour"
-    private const val KEY_DAILY_NOTIFICATION_MINUTE = "dailyNotificationMinute"
-    private const val KEY_DAILY_NOTIFICATION_SKIP_TODAY = "dailyNotificationSkipToday"
+    private const val KEY_DAILY_NOTIFICATION_TIME = "dailyNotificationTime"
     private const val KEY_DAILY_NOTIFICATION_TITLE = "dailyNotificationTitle"
 
     private enum class NotificationId { DAILY }
@@ -57,25 +55,10 @@ object NotificationPlugin {
         val notificationOn = call.argument<Boolean>(KEY_DAILY_NOTIFICATION_ON)!!
         if (!notificationOn) return deleteDailyNotification(context);
 
-        val hour = call.argument<Int>(KEY_DAILY_NOTIFICATION_HOUR)!!
-        val minute = call.argument<Int>(KEY_DAILY_NOTIFICATION_MINUTE)!!
-        val skipToday = call.argument<Boolean>(KEY_DAILY_NOTIFICATION_SKIP_TODAY)!!
+        val startTime = call.argument<Long>(KEY_DAILY_NOTIFICATION_TIME)!!
         val title = call.argument<String>(KEY_DAILY_NOTIFICATION_TITLE)!!
 
-        val now = System.currentTimeMillis()
         val repeatInterval = 24 * 60 * 60 * 1000.toLong() // 24.hours.toLongMilliseconds()
-        val startTime = Calendar.getInstance().run {
-            timeInMillis = now
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            if (timeInMillis < now || skipToday) {
-                timeInMillis + repeatInterval
-            } else {
-                timeInMillis
-            }
-        }
 
         // Get faster alerts while developing
         val type = if (BuildConfig.DEBUG) AlarmManager.RTC_WAKEUP else AlarmManager.RTC
