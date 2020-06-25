@@ -25,12 +25,12 @@ class DbHelper {
 
   /// Get all of the providers for database access
   List<SingleChildWidget> dbProviders() => [
-        FutureProvider<Database>(lazy: false, create: (_) => _openDatabase()),
+        FutureProvider<Database>(lazy: false, create: (_) => getDatabase()),
         ..._tables.map((table) => table.getProvider()),
       ];
 
   /// Open the database, or use the provided one (testing)
-  Future<Database> _openDatabase() =>
+  Future<Database> getDatabase() =>
       _database ?? openDatabase(DB_NAME, version: DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
 
   /// Run create on each table

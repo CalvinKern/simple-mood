@@ -17,7 +17,7 @@ import com.seakernel.simple_mood.R
 class ScheduledNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0) + 1 // Has to be 1 based
+        val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
         val title = intent.getStringExtra(NotificationPlugin.EXTRA_TITLE)!!
         val notification: Notification = createNotification(context, channelId, notificationId, title)
@@ -35,7 +35,8 @@ class ScheduledNotificationReceiver : BroadcastReceiver() {
             val imageIds = arrayOf(R.id.notification_very_dissatisfied, R.id.notification_dissatisfied, R.id.notification_plain, R.id.notification_satisfied, R.id.notification_very_satisfied)
             imageIds.forEach {
                 val intent = Intent(context, ClickedNotificationReceiver::class.java).apply {
-                    this.putExtra(ClickedNotificationReceiver.EXTRA_SELECTED, it)
+                    this.putExtra(NotificationPlugin.EXTRA_RATING, getRatingFromId(it))
+                    this.putExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, notificationId)
                 }
                 // Use the imageId as the request code so they don't overwrite each other with the same code
                 val pendingIntent = PendingIntent.getBroadcast(context, it, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -69,4 +70,14 @@ class ScheduledNotificationReceiver : BroadcastReceiver() {
         NotificationManagerCompat.from(context).createNotificationChannel(channel)
     }
 
+    private fun getRatingFromId(imageId: Int): Int {
+        return when (imageId) {
+            R.id.notification_very_dissatisfied -> 0
+            R.id.notification_dissatisfied -> 1
+            R.id.notification_plain -> 2
+            R.id.notification_satisfied -> 3
+            R.id.notification_very_satisfied -> 4
+            else -> throw IllegalArgumentException("Invalid image id ($imageId) when trying to determine rating")
+        }
+    }
 }

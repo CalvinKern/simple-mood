@@ -26,6 +26,8 @@
                 android:resource="@style/NormalTheme" />
         </activity>
 
+        <service android:name=".notification.NotificationService" />
+
         <receiver
             android:name=".notification.ScheduledNotificationReceiver"
             android:enabled="true"
