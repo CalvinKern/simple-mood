@@ -26,7 +26,10 @@
                 android:resource="@style/NormalTheme" />
         </activity>
 
-        <service android:name=".notification.NotificationService" />
+        <service
+            android:name=".notification.NotificationService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            />
 
         <receiver
             android:name=".notification.ScheduledNotificationReceiver"
