@@ -72,6 +72,18 @@ class AppLocalizations {
 
   String get addTodaysMood => Intl.message('Add Today\'s Mood');
 
+  String get timePeriod => Intl.message('Time Period:');
+
+  String get oneWeek => Intl.message('1W');
+
+  String get oneMonth => Intl.message('1M');
+
+  String get sixMonths => Intl.message('6M');
+
+  String get oneYear => Intl.message('1Y');
+
+  String get periodAll => Intl.message('All');
+
   String get moodChart => Intl.message('Mood Chart');
 
   String get moodCount => Intl.message('Mood Count');

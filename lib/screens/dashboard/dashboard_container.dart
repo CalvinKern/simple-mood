@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
-import 'package:simple_mood/screens/dashboard/charts_page.dart';
+import 'file:///C:/Users/Calvin/Documents/Code/simple_mood/lib/screens/dashboard/charts/charts_page.dart';
 import 'package:simple_mood/screens/dashboard/list_page.dart';
 import 'package:simple_mood/screens/dashboard/settings_page.dart';
 

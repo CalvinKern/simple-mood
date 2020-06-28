@@ -55,7 +55,8 @@ class PrefsRepo extends Repo {
   }
 
   Future delayTodayReminder(String title) async {
-    if (!prefs.getBool(KEY_DAILY_REMINDER_SET)) return;
+    if (prefs.getBool(KEY_DAILY_REMINDER_SET) != true) return;
+
     final now = TimeOfDay.now();
     final reminderTime = getDailyReminderTime();
     if (reminderTime.hour < now.hour || (reminderTime.hour == now.hour && reminderTime.minute < now.minute)) return;
