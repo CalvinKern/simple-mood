@@ -65,6 +65,9 @@ class _BodyState extends State<_Body> {
       case _TimePeriod.month:
         startTime = DateTime.now().add(Duration(days: -31));
         break;
+      case _TimePeriod.threeMonth:
+        startTime = DateTime.now().add(Duration(days: -90));
+        break;
       case _TimePeriod.halfYear:
         startTime = DateTime.now().add(Duration(days: -183));
         break;
@@ -162,7 +165,7 @@ class _TimePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final buttonTexts = [l10n.oneWeek, l10n.oneMonth, l10n.sixMonths, l10n.oneYear, l10n.periodAll];
+    final buttonTexts = [l10n.oneWeek, l10n.oneMonth, l10n.threeMonths, l10n.sixMonths, l10n.oneYear, l10n.periodAll];
     return DashboardCard(
       title: l10n.timePeriod,
       chartHeight: null, // Be as big as it wants
@@ -195,4 +198,4 @@ class _TimePicker extends StatelessWidget {
       );
 }
 
-enum _TimePeriod { week, month, halfYear, year, all }
+enum _TimePeriod { week, month, threeMonth, halfYear, year, all }

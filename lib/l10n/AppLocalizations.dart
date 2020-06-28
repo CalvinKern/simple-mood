@@ -78,6 +78,8 @@ class AppLocalizations {
 
   String get oneMonth => Intl.message('1M');
 
+  String get threeMonths => Intl.message('3M');
+
   String get sixMonths => Intl.message('6M');
 
   String get oneYear => Intl.message('1Y');
