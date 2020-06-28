@@ -167,8 +167,9 @@ class _TimePicker extends StatelessWidget {
       title: l10n.timePeriod,
       chartHeight: null, // Be as big as it wants
       child: ButtonTheme(
+        minWidth: 48,
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(buttonTexts.length, (index) {
             final onPressed = () => onPeriodSelected(_TimePeriod.values[index]);
@@ -190,7 +191,7 @@ class _TimePicker extends StatelessWidget {
   Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => FlatButton(
         child: Text(period),
         onPressed: onPressed,
-        textColor: Theme.of(context).primaryColor,
+        textColor: Theme.of(context).textTheme.headline4.color,
       );
 }
 

@@ -27,7 +27,7 @@ class TimeChart extends StatelessWidget {
       charts.Series<_TimeChartData, DateTime>(
         id: _TimeChartData.ID,
         data: moodData,
-        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(MoodTheme().primarySwatch()),
+        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(MoodTheme.primarySwatch()),
         domainFn: (mood, _) => mood.date.toMidnight(),
         measureFn: (mood, _) => mood.rating,
       ),

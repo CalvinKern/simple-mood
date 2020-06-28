@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 class MoodTheme {
   const MoodTheme();
 
-  Color primarySwatch() => Colors.teal;
-
   ThemeData lightTheme() {
     return ThemeData(
       brightness: Brightness.light,
@@ -29,4 +27,6 @@ class MoodTheme {
       ),
     );
   }
+
+  static Color primarySwatch() => Colors.teal;
 }
