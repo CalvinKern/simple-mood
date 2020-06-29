@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
-import 'file:///C:/Users/Calvin/Documents/Code/simple_mood/lib/screens/dashboard/charts/charts_page.dart';
-import 'package:simple_mood/screens/dashboard/list_page.dart';
+import 'package:simple_mood/screens/dashboard/calendar/calendar_page.dart';
+import 'package:simple_mood/screens/dashboard/charts/charts_page.dart';
 import 'package:simple_mood/screens/dashboard/settings_page.dart';
 
 class DashboardContainer extends StatefulWidget {
@@ -45,7 +45,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
   Widget currentBody() {
     switch (_currentIndex) {
       case 0: return ChartsPage();
-      case 1: return ListPage();
+      case 1: return CalendarPage();
       case 2: return SettingsPage();
       default: throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
     }

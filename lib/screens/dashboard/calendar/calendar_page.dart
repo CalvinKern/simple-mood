@@ -6,7 +6,7 @@ import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
-class ListPage extends StatelessWidget {
+class CalendarPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<MoodRepo>(
