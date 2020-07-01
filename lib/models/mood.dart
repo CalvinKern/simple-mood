@@ -8,6 +8,7 @@ part 'mood.g.dart';
 /// flutter pub run build_runner build
 abstract class Mood implements Built<Mood, MoodBuilder> {
   Mood._();
+
   factory Mood([void Function(MoodBuilder) updates]) = _$Mood;
 
   static Serializer<Mood> get serializer => _$moodSerializer;
@@ -23,6 +24,10 @@ abstract class Mood implements Built<Mood, MoodBuilder> {
 class MoodRating extends EnumClass {
   const MoodRating._(String name) : super(name);
 
+  /// For only user rated moods
+  static BuiltSet<MoodRating> get ratings => values.difference(BuiltSet.of([MoodRating.missing]));
+
+  // All possible states a mood could be rated (includes missing)
   static BuiltSet<MoodRating> get values => _$moodRatingValues;
 
   static MoodRating valueOf(String name) => _$moodRatingValueOf(name);
@@ -38,4 +43,6 @@ class MoodRating extends EnumClass {
   static const MoodRating happy = _$moodTypeHappy;
 
   static const MoodRating ecstatic = _$moodTypeEcstatic;
+
+  static const MoodRating missing = _$moodTypeMissing;
 }

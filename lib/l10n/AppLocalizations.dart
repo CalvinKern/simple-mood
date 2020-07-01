@@ -64,6 +64,8 @@ class AppLocalizations {
 
   String get ratingEcstatic => 'Ecstatic';
 
+  String get ratingMissing => 'Missing';
+
   // Action Strings
 
   String get delete => 'Delete';

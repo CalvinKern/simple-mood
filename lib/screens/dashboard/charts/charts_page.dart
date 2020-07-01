@@ -136,7 +136,7 @@ class _TodayMood extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: MoodRating.values
+        children: MoodRating.ratings
             .map((rating) => MaterialButton(
                   child: rating.asIcon(context),
                   shape: CircleBorder(),

@@ -6,7 +6,26 @@ import 'package:simple_mood/models/mood.dart';
 extension DateFormatting on DateTime {
   String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
 
+  String monthFormat() => this == null ? null : (DateFormat.MMMM().format(this));
+
   DateTime toMidnight() => this == null ? null : DateTime(this.year, this.month, this.day);
+
+  DateTime toStartOfMonth() => this == null ? null : DateTime(year, month, 1);
+
+  DateTime toStartOfWeek() {
+    if (this == null) return null;
+
+    final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
+    DateTime start = this.toMidnight();
+    while (start.weekday != firstDay) {
+      start = start.subtract(Duration(days: 1));
+    }
+    return start;
+  }
+
+  DateTime toEndOfMonth() {
+    return DateTime(year, month + 1).subtract(Duration(days: 1));
+  }
 }
 
 extension MoodResource on MoodRating {
@@ -32,7 +51,7 @@ extension MoodResource on MoodRating {
       case MoodRating.ecstatic:
         return Colors.green;
       default:
-        throw ArgumentError.value(this);
+        return Colors.grey;
     }
   }
 
@@ -49,7 +68,7 @@ extension MoodResource on MoodRating {
       case MoodRating.ecstatic:
         return Icons.sentiment_very_satisfied;
       default:
-        throw ArgumentError.value(this);
+        return Icons.face;
     }
   }
 
@@ -66,7 +85,7 @@ extension MoodResource on MoodRating {
       case MoodRating.ecstatic:
         return AppLocalizations.of(context).ratingEcstatic;
       default:
-        throw ArgumentError.value(this);
+        return AppLocalizations.of(context).ratingMissing;
     }
   }
 }

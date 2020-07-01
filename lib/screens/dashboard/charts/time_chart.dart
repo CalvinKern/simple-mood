@@ -46,7 +46,7 @@ class TimeChart extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: MoodRating.values.map((rating) => rating.asIcon(context, size: 24)).toList().reversed.toList(),
+              children: MoodRating.ratings.map((rating) => rating.asIcon(context, size: 24)).toList().reversed.toList(),
             ),
           ),
           Flexible(

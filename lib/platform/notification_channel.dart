@@ -44,7 +44,7 @@ class NotificationChannel {
   static Future _addRating(MethodCall call) async {
     final rating = call.arguments[0] as int;
       // Can't get our repo through provider, so create the repo ourselves
-    await MoodRepo(MoodTable(db: await DbHelper().getDatabase())).create(MoodRating.values.elementAt(rating));
+    await MoodRepo(MoodTable(db: await DbHelper().getDatabase())).create(MoodRating.ratings.elementAt(rating));
     // TODO: could report back the weekly moods for another notification
   }
 
