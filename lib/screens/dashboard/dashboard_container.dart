@@ -19,7 +19,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
   Widget build(BuildContext context) {
     final size = 24.0; // DefaultTextStyle.of(context).style.fontSize; Should be like this, but not quite right
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( // TODO: Can this animate height change if it's a sliver app bar?
         title: Text(AppLocalizations().appName),
         bottom: (_currentIndex != 1) ? null : PreferredSize(child: _WeekHeader(), preferredSize: Size.fromHeight(size)),
       ),

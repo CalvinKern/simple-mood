@@ -50,7 +50,6 @@ class TimeChart extends StatelessWidget {
             ),
           ),
           Flexible(
-            // TODO: Make scrollable horizontally? Would also need to get more data from the repo, maybe just previous month?
             // TODO: Add support for showing date when clicking a data point: https://github.com/google/charts/issues/58
             // TODO: Time labels aren't legible in dark mode
             child: charts.TimeSeriesChart(

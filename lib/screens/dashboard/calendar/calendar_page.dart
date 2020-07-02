@@ -61,6 +61,7 @@ class _CalendarBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Will this be more performant with SliverList?
     return ListView(
       shrinkWrap: true,
       reverse: true,
