@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
@@ -63,37 +60,10 @@ class _CalendarBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _WeekHeader(),
-        Expanded(
-          child: ListView(
-            shrinkWrap: true,
-            reverse: true,
-            children: moodsByMonth.map((moods) => _MoodMonth(data: moods)).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _WeekHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final symbols = DateFormat().dateSymbols.STANDALONENARROWWEEKDAYS;
-    final firstDayOfWeek = DateFormat().dateSymbols.FIRSTDAYOFWEEK;
-
-    return Row(
-      children: List.generate(symbols.length, (index) {
-        final day = (firstDayOfWeek + index + 1) % symbols.length;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
-            child: Text(symbols[day], textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline4),
-          ),
-        );
-      }),
+    return ListView(
+      shrinkWrap: true,
+      reverse: true,
+      children: moodsByMonth.map((moods) => _MoodMonth(data: moods)).toList(),
     );
   }
 }
@@ -137,7 +107,7 @@ class _MoodDay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: MaterialButton(
-//        child: Text(mood.date.day.toString()),
+//        child: Text(mood.date.day.toString()), // Useful for debugging
         child: mood.rating.asIcon(context),
         padding: EdgeInsets.symmetric(horizontal: 4),
         onLongPress: () => mood.rating == MoodRating.missing ? null : _askDeleteMood(context),
@@ -155,12 +125,15 @@ class _MoodDay extends StatelessWidget {
   }
 }
 
+/// A temp class to hold basic calendar logic for getting data ready for the view. Is not pretty/efficient, will improve later
 class _MonthData {
   final DateTime start;
   final List<List<Mood>> moodsByWeek;
 
   _MonthData._(this.start, this.moodsByWeek);
 
+  /// Split a month worth of mood data into a list of moods by week (each list in the list represents 7 days of moods).
+  /// Any missing days will be generated as "missing".
   factory _MonthData.fromMonthData(DateTime start, List<Mood> moods) {
     final today = DateTime.now().toMidnight();
     final firstDay = start.toStartOfWeek();
@@ -184,14 +157,17 @@ class _MonthData {
     return _MonthData._(start, realMonths);
   }
 
+  /// From a weeks worth of mood data, return a full week of moods generating any "missing" entries
   static List<Mood> _generateMissingData(DateTime weekStart, List<Mood> moods) {
     final firstDayOfWeek = weekStart.toStartOfWeek();
     final weekMoods = List<Mood>(7);
+
     // Add any existing moods
     moods.forEach((element) {
       final day = element.date.toMidnight().difference(firstDayOfWeek).inDays;
       weekMoods[day] = element;
     });
+
     // Find each missing day in the week and add a missing mood
     final now = DateTime.now();
     for (int i = 0; i < 7; i++) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/screens/dashboard/calendar/calendar_page.dart';
 import 'package:simple_mood/screens/dashboard/charts/charts_page.dart';
@@ -16,9 +17,11 @@ class _DashboardContainerState extends State<DashboardContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final size = 24.0; // DefaultTextStyle.of(context).style.fontSize; Should be like this, but not quite right
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations().appName),
+        bottom: (_currentIndex != 1) ? null : PreferredSize(child: _WeekHeader(), preferredSize: Size.fromHeight(size)),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -51,3 +54,27 @@ class _DashboardContainerState extends State<DashboardContainer> {
     }
   }
 }
+
+class _WeekHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final symbols = DateFormat().dateSymbols.STANDALONENARROWWEEKDAYS;
+    final firstDayOfWeek = DateFormat().dateSymbols.FIRSTDAYOFWEEK;
+
+    return Row(
+      children: List.generate(symbols.length, (index) {
+        final day = (firstDayOfWeek + index + 1) % symbols.length;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              symbols[day],
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
