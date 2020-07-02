@@ -7,6 +7,7 @@ import 'package:simple_mood/repos/prefs_repo.dart';
 import 'package:simple_mood/screens/dashboard/charts/dashboard_card.dart';
 import 'package:simple_mood/screens/dashboard/charts/pie_chart.dart';
 import 'package:simple_mood/screens/dashboard/charts/time_chart.dart';
+import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 class ChartsPage extends StatelessWidget {
@@ -96,14 +97,14 @@ class _Charts extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _TodayMood(),
+          RatingPicker.asTodayCard(context),
           _EmptyMood(),
         ],
       );
     } else {
       return ListView(
         children: [
-          if (moods.last?.date?.isAfter(DateTime.now().toMidnight()) != true) _TodayMood(),
+          if (moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true) RatingPicker.asTodayCard(context),
           _TimePicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period)),
           TimeChart(moods: moods),
           PieChart(moods: moods),
@@ -123,36 +124,6 @@ class _EmptyMood extends StatelessWidget {
         style: Theme.of(context).textTheme.headline4,
       ),
     );
-  }
-}
-
-/// Today Mood tile
-class _TodayMood extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DashboardCard(
-      title: AppLocalizations.of(context).addTodaysMood,
-      chartHeight: 96,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: MoodRating.ratings
-            .map((rating) => MaterialButton(
-                  child: rating.asIcon(context),
-                  shape: CircleBorder(),
-                  minWidth: 48,
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  onPressed: () => addMood(context, rating),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  void addMood(BuildContext context, MoodRating rating) {
-    Provider.of<MoodRepo>(context, listen: false).create(rating);
-    Provider.of<PrefsRepo>(context, listen: false)
-        .delayTodayReminder(AppLocalizations.of(context).dailyReminderNotificationTitle);
   }
 }
 

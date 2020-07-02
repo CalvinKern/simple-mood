@@ -74,6 +74,12 @@ class AppLocalizations {
 
   String get addTodaysMood => Intl.message('Add Today\'s Mood');
 
+  String editMood(String date) => Intl.message(
+        'Edit Mood for $date',
+        name: 'editMood',
+        args: [date],
+      );
+
   String get timePeriod => Intl.message('Time Period:');
 
   String get oneWeek => Intl.message('1W');

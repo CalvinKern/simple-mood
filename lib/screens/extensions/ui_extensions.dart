@@ -4,6 +4,8 @@ import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 
 extension DateFormatting on DateTime {
+  String simpleFormat() => this == null ? null : DateFormat.yMd().format(this);
+
   String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
 
   String monthFormat() => this == null ? null : (DateFormat.MMMM().format(this));

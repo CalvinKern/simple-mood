@@ -4,6 +4,7 @@ import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
+import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -31,7 +32,7 @@ class _CalendarPageState extends State<CalendarPage> {
             } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
               return Center(child: Text(AppLocalizations.of(context).noMoods));
             } else {
-              return _CalendarBody.monthly(moodsByMonth: snapshot.data);
+              return _CalendarBody(moodsByMonth: snapshot.data);
             }
           },
         );
@@ -56,7 +57,7 @@ class _CalendarPageState extends State<CalendarPage> {
 class _CalendarBody extends StatelessWidget {
   final List<_MonthData> moodsByMonth;
 
-  const _CalendarBody.monthly({Key key, this.moodsByMonth}) : super(key: key);
+  const _CalendarBody({Key key, this.moodsByMonth}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +122,7 @@ class _MoodDay extends StatelessWidget {
   }
 
   _askRateMood(BuildContext context) async {
-    // TODO: Show dialog asking for new/updated rating
+    await RatingPicker.asDialog(context, mood);
   }
 }
 
