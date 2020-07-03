@@ -34,7 +34,8 @@ class _Body extends StatefulWidget {
 }
 
 class _BodyState extends State<_Body> {
-  _TimePeriod _selectedTimePeriod = _TimePeriod.week;
+  // Static so that we lazy persist selected period while app stays alive
+  static _TimePeriod _selectedTimePeriod = _TimePeriod.week;
 
   @override
   Widget build(BuildContext context) {
