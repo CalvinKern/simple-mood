@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
-import 'package:simple_mood/repos/prefs_repo.dart';
 import 'package:simple_mood/screens/dashboard/charts/dashboard_card.dart';
 import 'package:simple_mood/screens/dashboard/charts/pie_chart.dart';
 import 'package:simple_mood/screens/dashboard/charts/time_chart.dart';
@@ -105,7 +104,7 @@ class _Charts extends StatelessWidget {
       return ListView(
         children: [
           if (moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true) RatingPicker.asTodayCard(context),
-          _TimePicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period)),
+          _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period)),
           TimeChart(moods: moods),
           PieChart(moods: moods),
         ],
@@ -127,11 +126,11 @@ class _EmptyMood extends StatelessWidget {
   }
 }
 
-class _TimePicker extends StatelessWidget {
+class _PeriodPicker extends StatelessWidget {
   final _TimePeriod selectedPeriod;
   final Function(_TimePeriod) onPeriodSelected;
 
-  const _TimePicker({Key key, @required this.selectedPeriod, @required this.onPeriodSelected}) : super(key: key);
+  const _PeriodPicker({Key key, @required this.selectedPeriod, @required this.onPeriodSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +148,7 @@ class _TimePicker extends StatelessWidget {
             final onPressed = () => onPeriodSelected(_TimePeriod.values[index]);
             final period = buttonTexts[index];
             return index == selectedPeriod.index
-                ? _getSelectedButton(period, onPressed)
+                ? _getSelectedButton(context, period, onPressed)
                 : _getUnselectedButton(context, period, onPressed);
           }),
         ),
@@ -157,8 +156,8 @@ class _TimePicker extends StatelessWidget {
     );
   }
 
-  Widget _getSelectedButton(String period, Function() onPressed) => RaisedButton(
-        child: Text(period),
+  Widget _getSelectedButton(BuildContext context, String period, Function() onPressed) => RaisedButton(
+        child: Text(period, style: Theme.of(context).primaryTextTheme.button),
         onPressed: onPressed,
       );
 

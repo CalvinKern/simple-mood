@@ -17,28 +17,24 @@ class _DashboardContainerState extends State<DashboardContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final size = 24.0; // DefaultTextStyle.of(context).style.fontSize; Should be like this, but not quite right
+    final weekHeight =
+        Theme.of(context).primaryTextTheme.headline6.fontSize + 12; // 8 padding top/bottom, plus 4 for Text offset
     return Scaffold(
-      appBar: AppBar( // TODO: Can this animate height change if it's a sliver app bar?
+      appBar: AppBar(
+        // TODO: Can this animate height change if it's a sliver app bar?
         title: Text(AppLocalizations().appName),
-        bottom: (_currentIndex != 1) ? null : PreferredSize(child: _WeekHeader(), preferredSize: Size.fromHeight(size)),
+        bottom: (_currentIndex != 1)
+            ? null
+            : PreferredSize(child: _WeekHeader(), preferredSize: Size.fromHeight(weekHeight)),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text(AppLocalizations.of(context).pageHome)),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text(AppLocalizations.of(context).pageHome)
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            title: Text(AppLocalizations.of(context).pageCalendar)
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context).pageSettings)
-          ),
+              icon: Icon(Icons.calendar_today), title: Text(AppLocalizations.of(context).pageCalendar)),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text(AppLocalizations.of(context).pageSettings)),
         ],
       ),
       body: currentBody(),
@@ -47,10 +43,14 @@ class _DashboardContainerState extends State<DashboardContainer> {
 
   Widget currentBody() {
     switch (_currentIndex) {
-      case 0: return ChartsPage();
-      case 1: return CalendarPage();
-      case 2: return SettingsPage();
-      default: throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
+      case 0:
+        return ChartsPage();
+      case 1:
+        return CalendarPage();
+      case 2:
+        return SettingsPage();
+      default:
+        throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
     }
   }
 }
@@ -70,6 +70,7 @@ class _WeekHeader extends StatelessWidget {
             child: Text(
               symbols[day],
               textAlign: TextAlign.center,
+              style: Theme.of(context).primaryTextTheme.headline6,
             ),
           ),
         );
@@ -77,4 +78,3 @@ class _WeekHeader extends StatelessWidget {
     );
   }
 }
-
