@@ -7,45 +7,58 @@ import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
 import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
-class CalendarPage extends StatefulWidget {
+class CalendarPage extends StatelessWidget {
   @override
-  _CalendarPageState createState() => _CalendarPageState();
+  Widget build(BuildContext context) {
+    return Consumer<MoodRepo>(builder: (context, repo, child) {
+      if (repo?.readyToLoad() != true) {
+        return Center(child: CircularProgressIndicator());
+      }
+      return _CalendarBody(moodRepo: repo);
+    });
+  }
 }
 
-class _CalendarPageState extends State<CalendarPage> {
-  int _monthsToLoad = 5;
+class _CalendarBody extends StatefulWidget {
+  final MoodRepo moodRepo;
+
+  const _CalendarBody({Key key, @required this.moodRepo}) : super(key: key);
+
+  @override
+  _CalendarBodyState createState() => _CalendarBodyState();
+}
+
+class _CalendarBodyState extends State<_CalendarBody> {
+  final List<_MonthData> _months = List();
+
+  Future<List<_MonthData>> future;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MoodRepo>(
-      builder: (context, repo, child) {
-        if (repo?.readyToLoad() != true) {
+    // Set the future every time build is called so we refresh data
+    future = _getHistoricalMoods(widget.moodRepo);
+    // TODO: Load more data (paging, and stop at the oldest entry (find the min date through a sql query))
+    return FutureBuilder(
+      future: future,
+      builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
+        if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
+        } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
+          return Center(child: Text(AppLocalizations.of(context).noMoods));
+        } else {
+          return _CalendarList(moodsByMonth: snapshot.data);
         }
-        return FutureBuilder(
-          // Set the future every time the consumer builder is called so we refresh data
-          // TODO: Load more data (paging, and stop at the oldest entry (find the min date through a sql query))
-          future: _getHistoricalMoods(repo),
-          builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
-            if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
-              return Center(child: Text(AppLocalizations.of(context).noMoods));
-            } else {
-              return _CalendarBody(moodsByMonth: snapshot.data);
-            }
-          },
-        );
       },
     );
   }
 
-  Future<List<_MonthData>> _getHistoricalMoods(MoodRepo repo) async {
-    final months = List<_MonthData>();
+  Future<List<_MonthData>> _getHistoricalMoods(MoodRepo repo, {int monthsToStart}) async {
     DateTime startDate = DateTime.now().toStartOfMonth();
     DateTime endDate = DateTime.now();
-    for (int i = 0; i < _monthsToLoad; i++) {
+    final months = List<_MonthData>();
+    for (int i = 0; i < 2; i++) { // TODO: Always load 3 months to start?
       final future = await repo.getMoods(startDate, endDate);
+      if (future == null) break; // Stop if we're at the oldest date
       months.add(_MonthData.fromMonthData(startDate, future));
       endDate = startDate.subtract(Duration(days: 1)).toMidnight();
       startDate = endDate.toStartOfMonth();
@@ -54,10 +67,10 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 }
 
-class _CalendarBody extends StatelessWidget {
+class _CalendarList extends StatelessWidget {
   final List<_MonthData> moodsByMonth;
 
-  const _CalendarBody({Key key, this.moodsByMonth}) : super(key: key);
+  const _CalendarList({Key key, this.moodsByMonth}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +152,8 @@ class _MonthData {
   factory _MonthData.fromMonthData(DateTime start, List<Mood> moods) {
     final today = DateTime.now().toMidnight();
     final firstDay = start.toStartOfWeek();
-    final nextMonth = start.toEndOfMonth();
-    final lastDay = today.isAfter(nextMonth) ? nextMonth : today;
+    final lastDayOfMonth = start.toEndOfMonth();
+    final lastDay = today.isAfter(lastDayOfMonth) ? lastDayOfMonth : today;
     final daysBetween = lastDay.toStartOfWeek().difference(firstDay).inDays;
     final weeksToShow = (daysBetween / 7).ceil() + 1;
 
