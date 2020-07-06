@@ -68,7 +68,7 @@ class _RatingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(AppLocalizations.of(context).editMood(mood.date.simpleFormat())),
+      title: Text(AppLocalizations.of(context).editMood(mood.date.readableFormat())),
       content: Flex(direction: Axis.horizontal, children: [RatingPicker._ratingButtons(context, mood, popOnRate: true)]),
       actions: [
         FlatButton(

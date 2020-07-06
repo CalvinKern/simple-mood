@@ -6,6 +6,8 @@ import 'package:simple_mood/models/mood.dart';
 extension DateFormatting on DateTime {
   String simpleFormat() => this == null ? null : DateFormat.yMd().format(this);
 
+  String readableFormat() => this == null ? null : DateFormat.yMMMMd().format(this);
+
   String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
 
   // Pass in a 'now' to get the year added to the month format
