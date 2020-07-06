@@ -29,35 +29,41 @@ class _CalendarBody extends StatefulWidget {
 }
 
 class _CalendarBodyState extends State<_CalendarBody> {
-  final List<_MonthData> _months = List();
+  Future<List<_MonthData>> _future;
+  Future<DateTime> _oldestDate;
+  int _monthsToLoad = 3; // TODO: Always load 3 months to start?
 
-  Future<List<_MonthData>> future;
+  @override
+  void initState() {
+    super.initState();
+    // TODO: Find the min date through a sql query
+//    _oldestDate = widget.moodRepo.getOldestMood().then((value) => );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Set the future every time build is called so we refresh data
-    future = _getHistoricalMoods(widget.moodRepo);
-    // TODO: Load more data (paging, and stop at the oldest entry (find the min date through a sql query))
+    // Set the future every time build is called so we refresh data when repo gets a change
+    _future = _getHistoricalMoods();
     return FutureBuilder(
-      future: future,
+      future: _future,
       builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
         if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
           return Center(child: Text(AppLocalizations.of(context).noMoods));
         } else {
-          return _CalendarList(moodsByMonth: snapshot.data);
+          return _CalendarList(moods: snapshot.data, onLoadNextMonth: _loadNextMonth);
         }
       },
     );
   }
 
-  Future<List<_MonthData>> _getHistoricalMoods(MoodRepo repo, {int monthsToStart}) async {
+  Future<List<_MonthData>> _getHistoricalMoods() async {
     DateTime startDate = DateTime.now().toStartOfMonth();
     DateTime endDate = DateTime.now();
     final months = List<_MonthData>();
-    for (int i = 0; i < 2; i++) { // TODO: Always load 3 months to start?
-      final future = await repo.getMoods(startDate, endDate);
+    for (int i = 0; i < _monthsToLoad; i++) {
+      final future = await widget.moodRepo.getMoods(startDate, endDate);
       if (future == null) break; // Stop if we're at the oldest date
       months.add(_MonthData.fromMonthData(startDate, future));
       endDate = startDate.subtract(Duration(days: 1)).toMidnight();
@@ -65,35 +71,96 @@ class _CalendarBodyState extends State<_CalendarBody> {
     }
     return months;
   }
+
+  void _loadNextMonth(DateTime nextMonth) async {
+    _monthsToLoad++; // Increment the month count so when repo has a change we build the same number of months
+    final start = nextMonth.toStartOfMonth();
+    final data = await widget.moodRepo.getMoods(start, nextMonth.toEndOfMonth());
+    _future = Future.value((await _future)..add(_MonthData.fromMonthData(start, data)));
+    setState(() {});
+  }
 }
 
-class _CalendarList extends StatelessWidget {
+class _CalendarList extends StatefulWidget {
   final List<_MonthData> moodsByMonth;
+  final void Function(DateTime startDate) onLoadNextMonth;
 
-  const _CalendarList({Key key, this.moodsByMonth}) : super(key: key);
+  _CalendarList({Key key, List<_MonthData> moods, this.onLoadNextMonth})
+      : this.moodsByMonth = moods + const [null], // Add a null for the paged loading spot
+        super(key: key);
+
+  @override
+  __CalendarListState createState() => __CalendarListState();
+}
+
+class __CalendarListState extends State<_CalendarList> {
+  final ScrollController _controller = ScrollController();
+
+  bool isLoading;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.removeListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (isLoading ||
+        _controller.position.extentAfter > _LoadingWidget.LOADING_HEIGHT ||
+        widget.onLoadNextMonth == null) {
+      return;
+    }
+    isLoading = true;
+    // Get the second to last item, since the last one is the null paged loading
+    final nextMonth = widget.moodsByMonth[widget.moodsByMonth.length - 2].start.subtract(Duration(days: 1));
+    widget.onLoadNextMonth(nextMonth);
+  }
 
   @override
   Widget build(BuildContext context) {
+    isLoading = false;
+
     // TODO: Will this be more performant with SliverList?
     return ListView(
+      controller: _controller,
       shrinkWrap: true,
       reverse: true,
-      children: moodsByMonth.map((moods) => _MoodMonth(data: moods)).toList(),
+      children: widget.moodsByMonth.map((data) => _MoodMonth(month: data)).toList(),
     );
   }
 }
 
-class _MoodMonth extends StatelessWidget {
-  final _MonthData data;
+class _LoadingWidget extends StatelessWidget {
+  const _LoadingWidget();
 
-  const _MoodMonth({Key key, this.data}) : super(key: key);
+  static const LOADING_HEIGHT = 96.0;
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(height: LOADING_HEIGHT, child: Center(child: CircularProgressIndicator()));
+  }
+}
+
+class _MoodMonth extends StatelessWidget {
+  final _MonthData month;
+
+  const _MoodMonth({Key key, this.month}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (month == null) {
+      return _LoadingWidget();
+    }
     return Column(
       children: [
-        Text(data.start.monthFormat(), style: Theme.of(context).textTheme.headline4),
-        ...data.moodsByWeek.map((e) => _MoodWeek(moods: e)).toList(),
+        Text(month.start.monthFormat(now: DateTime.now()), style: Theme.of(context).textTheme.headline4),
+        ...month.moodsByWeek.map((moods) => _MoodWeek(moods: moods)).toList(),
       ],
     );
   }
@@ -145,7 +212,7 @@ class _MonthData {
   final DateTime start;
   final List<List<Mood>> moodsByWeek;
 
-  _MonthData._(this.start, this.moodsByWeek);
+  const _MonthData._(this.start, this.moodsByWeek);
 
   /// Split a month worth of mood data into a list of moods by week (each list in the list represents 7 days of moods).
   /// Any missing days will be generated as "missing".

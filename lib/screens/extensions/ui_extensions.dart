@@ -8,7 +8,12 @@ extension DateFormatting on DateTime {
 
   String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
 
-  String monthFormat() => this == null ? null : (DateFormat.MMMM().format(this));
+  // Pass in a 'now' to get the year added to the month format
+  String monthFormat({DateTime now}) {
+    if (this == null) return null;
+    if (now == null || now.year == this.year) return DateFormat.MMMM().format(this);
+    return DateFormat.yMMM().format(this);
+  }
 
   DateTime toMidnight() => this == null ? null : DateTime(this.year, this.month, this.day);
 
