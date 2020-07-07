@@ -32,18 +32,25 @@ class _CalendarBodyState extends State<_CalendarBody> {
   Future<List<_MonthData>> _future;
   Future<DateTime> _oldestDate;
   int _monthsToLoad = 3; // TODO: Always load 3 months to start?
+  bool _doneLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // TODO: Find the min date through a sql query
-//    _oldestDate = widget.moodRepo.getOldestMood().then((value) => );
+    _future = _getHistoricalMoods();
+    _oldestDate = widget.moodRepo.getOldestMood().then((value) => value.date).catchError((_) => null);
+  }
+
+  @override
+  void didUpdateWidget(_CalendarBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Set the future every time dependencies change is called so we refresh data when repo gets a change
+    _future = _getHistoricalMoods();
+    _doneLoading = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Set the future every time build is called so we refresh data when repo gets a change
-    _future = _getHistoricalMoods();
     return FutureBuilder(
       future: _future,
       builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
@@ -52,7 +59,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
         } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
           return Center(child: Text(AppLocalizations.of(context).noMoods));
         } else {
-          return _CalendarList(moods: snapshot.data, onLoadNextMonth: _loadNextMonth);
+          return _CalendarList(moods: snapshot.data, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
         }
       },
     );
@@ -63,21 +70,34 @@ class _CalendarBodyState extends State<_CalendarBody> {
     DateTime endDate = DateTime.now();
     final months = List<_MonthData>();
     for (int i = 0; i < _monthsToLoad; i++) {
-      final future = await widget.moodRepo.getMoods(startDate, endDate);
-      if (future == null) break; // Stop if we're at the oldest date
-      months.add(_MonthData.fromMonthData(startDate, future));
+      final future = widget.moodRepo.getMoods(startDate, endDate);
+      List<Mood> moods = await future;
+      months.add(_MonthData.fromMonthData(startDate, moods));
+
+      if (await _isDoneLoading(startDate)) {
+        _doneLoading = true;
+        break;
+      }
+
       endDate = startDate.subtract(Duration(days: 1)).toMidnight();
       startDate = endDate.toStartOfMonth();
     }
     return months;
   }
 
-  void _loadNextMonth(DateTime nextMonth) async {
+  void _loadNextMonth(DateTime startDate) async {
+    if (_doneLoading) return;
     _monthsToLoad++; // Increment the month count so when repo has a change we build the same number of months
-    final start = nextMonth.toStartOfMonth();
-    final data = await widget.moodRepo.getMoods(start, nextMonth.toEndOfMonth());
+    final start = startDate.toStartOfMonth();
+    final data = await widget.moodRepo.getMoods(start, startDate.toEndOfMonth());
     _future = Future.value((await _future)..add(_MonthData.fromMonthData(start, data)));
+    _doneLoading = await _isDoneLoading(start);
     setState(() {});
+  }
+
+  Future<bool> _isDoneLoading(DateTime monthLoaded) async {
+    final oldestDate = await _oldestDate;
+    return oldestDate != null && !monthLoaded.isAfter(oldestDate);
   }
 }
 
@@ -85,8 +105,9 @@ class _CalendarList extends StatefulWidget {
   final List<_MonthData> moodsByMonth;
   final void Function(DateTime startDate) onLoadNextMonth;
 
-  _CalendarList({Key key, List<_MonthData> moods, this.onLoadNextMonth})
-      : this.moodsByMonth = moods + const [null], // Add a null for the paged loading spot
+  // Add a null for the paged loading spot
+  _CalendarList({Key key, List<_MonthData> moods, this.onLoadNextMonth, bool doneLoading = false})
+      : this.moodsByMonth = doneLoading ? moods : moods + const [null],
         super(key: key);
 
   @override
@@ -117,6 +138,7 @@ class __CalendarListState extends State<_CalendarList> {
       return;
     }
     isLoading = true;
+
     // Get the second to last item, since the last one is the null paged loading
     final nextMonth = widget.moodsByMonth[widget.moodsByMonth.length - 2].start.subtract(Duration(days: 1));
     widget.onLoadNextMonth(nextMonth);

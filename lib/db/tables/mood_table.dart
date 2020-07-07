@@ -5,6 +5,7 @@ import 'package:sqflite_common/sqlite_api.dart';
 import 'db_table.dart';
 
 const _TABLE_NAME = 'Mood';
+const _TABLE_COLUMNS = [_COLUMN_ID, _COLUMN_DATE, _COLUMN_RATING];
 const _COLUMN_ID = 'id';
 const _COLUMN_DATE = 'date';
 const _COLUMN_RATING = 'rating';
@@ -55,10 +56,20 @@ class MoodTable extends DbTable {
     return await db.delete(_TABLE_NAME, where: '$_COLUMN_ID = ?', whereArgs: [id]);
   }
 
+  Future<Mood> getOldestMood() async {
+    final moods = await db.query(
+      _TABLE_NAME,
+      columns: _TABLE_COLUMNS,
+      orderBy: _COLUMN_DATE,
+      limit: 1,
+    );
+    return moods.length == 0 ? null : deserialize(moods.first);
+  }
+
   Future<Mood> getMood(int id) async {
     final moods = await db.query(
       _TABLE_NAME,
-      columns: [_COLUMN_ID, _COLUMN_DATE, _COLUMN_RATING],
+      columns: _TABLE_COLUMNS,
       where: '$_COLUMN_ID = ?',
       whereArgs: [id],
     );
@@ -68,7 +79,7 @@ class MoodTable extends DbTable {
   Future<List<Mood>> getMoods(DateTime rangeStart, DateTime rangeEnd) async {
     final moods = await db.query(
       _TABLE_NAME,
-      columns: [_COLUMN_ID, _COLUMN_DATE, _COLUMN_RATING],
+      columns: _TABLE_COLUMNS,
       orderBy: _COLUMN_DATE,
       where: '$_COLUMN_DATE BETWEEN ? AND ?',
       whereArgs: [rangeStart.millisecondsSinceEpoch, rangeEnd.millisecondsSinceEpoch],

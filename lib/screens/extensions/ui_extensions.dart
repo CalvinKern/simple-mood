@@ -25,11 +25,11 @@ extension DateFormatting on DateTime {
     if (this == null) return null;
 
     final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
-    DateTime start = this.toMidnight();
+    DateTime start = this;
     while (start.weekday != firstDay) {
       start = start.subtract(Duration(days: 1));
     }
-    return start;
+    return start.toMidnight();
   }
 
   DateTime toEndOfMonth() {

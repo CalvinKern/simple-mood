@@ -39,6 +39,8 @@ class MoodRepo extends Repo {
     return id;
   }
 
+  Future<Mood> getOldestMood() => _db.getOldestMood();
+
   Future<Mood> getMood(int id) => _db.getMood(id);
 
   Future<List<Mood>> getMoods(DateTime rangeStart, DateTime rangeEnd) => _db.getMoods(rangeStart, rangeEnd);
