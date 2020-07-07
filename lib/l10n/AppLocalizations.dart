@@ -12,7 +12,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   // List of supported languages, currently only English
   final supportedLocales = const <Locale>[
-    Locale('en'),
+    Locale('en', 'US'),
+    Locale('en', 'GB'),
   ];
 
   @override
@@ -29,6 +30,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 //    return initializeMessages(localeName).then((_) {
 //      return AppLocalizations();
 //    });
+    Intl.defaultLocale = locale.toLanguageTag();
     return Future.value(AppLocalizations());
   }
 
