@@ -38,7 +38,7 @@ class DeleteDialog extends StatelessWidget {
       ],
       content: Text(
         AppLocalizations.of(context).deleteMoodBody(
-          _mood.date.fullFormat(),
+          _mood.date.readableFormat(),
           _mood.rating.readableString(context),
         ),
       ),
