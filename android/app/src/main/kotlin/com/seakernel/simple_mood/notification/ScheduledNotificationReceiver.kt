@@ -30,19 +30,7 @@ class ScheduledNotificationReceiver : BroadcastReceiver() {
         val notificationLayout = RemoteViews("com.seakernel.simple_mood", R.layout.notification_layout).apply {
             setTextViewText(R.id.notification_title, title)
         }
-        val notificationLayoutExpanded = RemoteViews("com.seakernel.simple_mood", R.layout.notification_expanded).apply {
-            setTextViewText(R.id.notification_title, title)
-            val imageIds = arrayOf(R.id.notification_very_dissatisfied, R.id.notification_dissatisfied, R.id.notification_plain, R.id.notification_satisfied, R.id.notification_very_satisfied)
-            imageIds.forEach {
-                val intent = Intent(context, ClickedNotificationReceiver::class.java).apply {
-                    this.putExtra(NotificationPlugin.EXTRA_RATING, getRatingFromId(it))
-                    this.putExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, notificationId)
-                }
-                // Use the imageId as the request code so they don't overwrite each other with the same code
-                val pendingIntent = PendingIntent.getBroadcast(context, it, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-                setOnClickPendingIntent(it, pendingIntent)
-            }
-        }
+        val notificationLayoutExpanded = expandedRemoteViews(context, notificationId, title)
 
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -55,6 +43,23 @@ class ScheduledNotificationReceiver : BroadcastReceiver() {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
         return builder.build()
+    }
+
+    private fun expandedRemoteViews(context: Context, notificationId: Int, title: String): RemoteViews {
+        val expanded = RemoteViews("com.seakernel.simple_mood", R.layout.notification_expanded)
+        expanded.setTextViewText(R.id.notification_title, title)
+
+        arrayOf(R.id.notification_very_dissatisfied, R.id.notification_dissatisfied, R.id.notification_plain, R.id.notification_satisfied, R.id.notification_very_satisfied).forEach { imageId ->
+            val intent = Intent(context, ClickedNotificationReceiver::class.java).apply {
+                putExtra(NotificationPlugin.EXTRA_RATING, getRatingFromId(imageId))
+                putExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, notificationId)
+            }
+            // Use the imageId as the request code so they don't overwrite each other with the same code
+            val pendingIntent = PendingIntent.getBroadcast(context, imageId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            expanded.setOnClickPendingIntent(imageId, pendingIntent)
+        }
+
+        return expanded
     }
 
     private fun setupNotificationChannel(context: Context, channelId: String) {
