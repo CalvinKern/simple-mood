@@ -15,6 +15,9 @@ import io.flutter.view.FlutterMain
 class NotificationService : JobIntentService() {
 
     companion object {
+        private const val METHOD_DAILY_NOTIFICATION_RATED = "dailyNotificationRated"
+        private const val METHOD_DISPATCHER_INITIALIZED = "dispatcherInitialized"
+
         private const val JOB_ID = 40404
 
         fun handleNotification(context: Context, intent: Intent) {
@@ -26,7 +29,7 @@ class NotificationService : JobIntentService() {
         Handler(applicationContext.mainLooper).post {
             val channel = initDartIsolate()
             channel.setMethodCallHandler { call, _ ->
-                if (call.method != NotificationPlugin.METHOD_DISPATCHER_INITIALIZED) return@setMethodCallHandler
+                if (call.method != METHOD_DISPATCHER_INITIALIZED) return@setMethodCallHandler
 
                 sendRating(channel, intent)
                 NotificationManagerCompat
@@ -37,10 +40,10 @@ class NotificationService : JobIntentService() {
     }
 
     private fun initDartIsolate(): MethodChannel {
-        val callbackHandle = NotificationPlugin.getCallbackHandle(applicationContext)
+        val callbackHandle = NotificationPlugin.getDailyNotification(applicationContext)?.callbackHandle ?: 0L
 
         val executor: DartExecutor = FlutterEngine(applicationContext).dartExecutor
-        val channel = MethodChannel(executor, NotificationPlugin.CHANNEL)
+        val channel = MethodChannel(executor, NotificationPlugin.FLUTTER_CHANNEL)
         val dartCallback = DartCallback(
                 applicationContext.assets,
                 FlutterMain.findAppBundlePath(),
@@ -52,7 +55,7 @@ class NotificationService : JobIntentService() {
 
     private fun sendRating(channel: MethodChannel, intent: Intent) {
         channel.invokeMethod(
-                NotificationPlugin.METHOD_DAILY_NOTIFICATION_RATED,
+                METHOD_DAILY_NOTIFICATION_RATED,
                 intArrayOf(intent.getIntExtra(NotificationPlugin.EXTRA_RATING, -1))
         )
     }
