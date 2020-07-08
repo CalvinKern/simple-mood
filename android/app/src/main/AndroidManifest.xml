@@ -32,7 +32,12 @@
             />
 
         <receiver
-            android:name=".notification.ScheduledNotificationReceiver"
+            android:name=".notification.DailyNotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".notification.WeeklyNotificationReceiver"
             android:enabled="true"
             android:exported="false" />
 

@@ -7,6 +7,7 @@ import 'package:simple_mood/db/db_helper.dart';
 import 'package:simple_mood/db/tables/mood_table.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
+import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 const _platform = const MethodChannel(NotificationChannel.CHANNEL);
 
@@ -24,19 +25,20 @@ void _callbackDispatcher() {
 class NotificationChannel {
   static const CHANNEL = 'com.seakernel.simple_mood/notification';
 
-  static const METHOD_SET_DAILY_NOTIFICATION = 'setDailyNotification';
-  static const METHOD_DAILY_NOTIFICATION_RATED = 'dailyNotificationRated';
   static const METHOD_DISPATCHER_INITIALIZED = 'dispatcherInitialized';
+  static const METHOD_NOTIFICATION_DAILY_RATED = 'dailyNotificationRated';
+  static const METHOD_SET_NOTIFICATION_DAILY = 'setDailyNotification';
+  static const METHOD_SET_NOTIFICATION_WEEKLY = 'setWeeklyNotification';
 
   static const KEY_CALLBACK_DISPATCHER = 'callbackDispatcher';
-  static const KEY_DAILY_NOTIFICATION_ON = 'dailyNotificationOn';
-  static const KEY_DAILY_NOTIFICATION_TIME = 'dailyNotificationTime';
-  static const KEY_DAILY_NOTIFICATION_TITLE = 'dailyNotificationTitle';
-  static const KEY_DAILY_NOTIFICATION_RATING = 'dailyNotificationRating';
+  static const KEY_NOTIFICATION_TITLE = 'notificationTitle';
+  static const KEY_NOTIFICATION_TIME = 'notificationTime';
+  static const KEY_NOTIFICATION_RATING_DAILY = 'dailyNotificationRating';
+  static const KEY_NOTIFICATION_ON = 'notificationOn';
 
   static Future<dynamic> _handleNativeCall(MethodCall call) {
     switch (call.method) {
-      case METHOD_DAILY_NOTIFICATION_RATED: return _addRating(call);
+      case METHOD_NOTIFICATION_DAILY_RATED: return _addRating(call);
       default: throw ArgumentError.value(call.method, 'MethodCall with invalid method for NotificationChannel');
     }
   }
@@ -45,7 +47,6 @@ class NotificationChannel {
     final rating = call.arguments[0] as int;
       // Can't get our repo through provider, so create the repo ourselves
     await MoodRepo(MoodTable(db: await DbHelper().getDatabase())).create(MoodRating.ratings.elementAt(rating));
-    // TODO: could report back the weekly moods for another notification
   }
 
   /// Platform channel to set the daily notification
@@ -63,11 +64,33 @@ class NotificationChannel {
     }
 
     try {
-      await _platform.invokeMethod(METHOD_SET_DAILY_NOTIFICATION, <String, dynamic>{
+      await _platform.invokeMethod(METHOD_SET_NOTIFICATION_DAILY, <String, dynamic>{
         KEY_CALLBACK_DISPATCHER: _callbackDispatcherHandle(),
-        KEY_DAILY_NOTIFICATION_ON: notificationOn,
-        if (notificationTitle != null) KEY_DAILY_NOTIFICATION_TITLE: notificationTitle,
-        if (nextTime != null) KEY_DAILY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
+        KEY_NOTIFICATION_ON: notificationOn,
+        if (notificationTitle != null) KEY_NOTIFICATION_TITLE: notificationTitle,
+        if (nextTime != null) KEY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
+      });
+    } on PlatformException catch (e) {
+      Crashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));
+    }
+  }
+
+  /// Platform channel to set the weekly notification
+  ///
+  /// [notificationOn] - true if the notification is on
+  /// [time] - Required as non null if [notificationOn] is true, the time to have the notification appear
+  static Future<void> setWeeklyNotification(bool notificationOn, {TimeOfDay time, String notificationTitle}) async {
+    assert((time != null && notificationTitle != null) || !notificationOn); // Time has to be present if notification is on
+
+    final now = DateTime.now().add(Duration(days: 7)).toStartOfWeek();
+    DateTime nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
+
+    try {
+      await _platform.invokeMethod(METHOD_SET_NOTIFICATION_WEEKLY, <String, dynamic>{
+        KEY_CALLBACK_DISPATCHER: _callbackDispatcherHandle(),
+        KEY_NOTIFICATION_ON: notificationOn,
+        if (notificationTitle != null) KEY_NOTIFICATION_TITLE: notificationTitle,
+        if (nextTime != null) KEY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
       });
     } on PlatformException catch (e) {
       Crashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));

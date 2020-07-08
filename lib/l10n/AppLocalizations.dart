@@ -115,5 +115,15 @@ class AppLocalizations {
 
   String get setDailyReminderDateTitle => Intl.message('Receive a notification daily at:');
 
+  String get setWeeklyReminderTitle => Intl.message('Weekly reminder:');
+
+  String setWeeklyReminderDateTitle(String firstDay) => Intl.message(
+        'Receive a notification to check back weekly on $firstDay at:',
+        name: 'setWeeklyReminderDateTitle',
+        args: [firstDay],
+      );
+
   String get dailyReminderNotificationTitle => Intl.message('How\'s your day going?');
+
+  String get weeklyReminderNotificationTitle => Intl.message('Check out how your week has been!');
 }

@@ -7,6 +7,6 @@ import android.content.Intent
 class NotificationBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent?.action != Intent.ACTION_BOOT_COMPLETED) return
-        NotificationPlugin.setDailyAlarm(context)
+        NotificationPlugin.resetAlarms(context)
     }
 }

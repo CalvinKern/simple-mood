@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
@@ -27,21 +28,32 @@ class _SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final dailyReminderSet = _prefs.getDailyReminderSet() ?? false;
     final dailyReminderTime = _prefs.getDailyReminderTime();
+    final weeklyReminderTime = _prefs.getWeeklyReminderTime();
 
     return ListView(
       children: [
         _SettingsTile(
           title: l10n.setDailyReminderTitle,
-          switchValue: dailyReminderSet,
+          switchValue: dailyReminderTime != null,
           onChanged: (flag) => _onDailyReminderChanged(context, flag),
         ),
-        if (dailyReminderSet)
+        if (dailyReminderTime != null)
           _SettingsTile(
             title: l10n.setDailyReminderDateTitle,
             subtitle: dailyReminderTime.format(context),
             onTap: () => _onDailyReminderTapped(context, dailyReminderTime),
+          ),
+        _SettingsTile(
+          title: l10n.setWeeklyReminderTitle,
+          switchValue: weeklyReminderTime != null,
+          onChanged: (flag) => _onWeeklyReminderChanged(context, flag),
+        ),
+        if (weeklyReminderTime != null)
+          _SettingsTile(
+            title: l10n.setWeeklyReminderDateTitle(DateFormat.EEEE().format(DateTime.now().toStartOfWeek())),
+            subtitle: weeklyReminderTime.format(context),
+            onTap: () => _onWeeklyReminderTapped(context, weeklyReminderTime),
           ),
       ],
     );
@@ -61,6 +73,21 @@ class _SettingsPage extends StatelessWidget {
       AppLocalizations.of(context).dailyReminderNotificationTitle,
       time,
       await _hasRatedMoodToday(context),
+    );
+  }
+
+  void _onWeeklyReminderChanged(BuildContext context, bool on) async => _prefs.setWeeklyReminder(
+        title: AppLocalizations.of(context).weeklyReminderNotificationTitle,
+        notificationOn: on,
+      );
+
+  void _onWeeklyReminderTapped(BuildContext context, TimeOfDay reminderTime) async {
+    final time = await showTimePicker(context: context, initialTime: reminderTime);
+    if (time == null) return; // Do nothing on a cancel
+
+    _prefs.setWeeklyReminderTime(
+      AppLocalizations.of(context).weeklyReminderNotificationTitle,
+      time,
     );
   }
 
