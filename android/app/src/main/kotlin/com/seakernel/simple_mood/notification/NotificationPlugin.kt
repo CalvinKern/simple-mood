@@ -32,7 +32,7 @@ object NotificationPlugin {
     fun configure(context: Context, flutterEngine: FlutterEngine) {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, FLUTTER_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
-                METHOD_SET_DAILY_NOTIFICATION -> setDailyNotification(context, call)
+                METHOD_SET_DAILY_NOTIFICATION -> handleDailyNotification(context, call)
             }
             result.success(null)
         }
@@ -77,19 +77,14 @@ object NotificationPlugin {
         return PendingIntent.getBroadcast(context, REQUEST_DAILY_NOTIFICATION, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    private fun setDailyNotification(context: Context, call: MethodCall) {
+    private fun handleDailyNotification(context: Context, call: MethodCall) {
         if (call.argument<Boolean>(KEY_DAILY_NOTIFICATION_ON) != true) return deleteDailyNotification(context)
 
         val notification = DailyNotification(call)
 
         setDailyNotification(context, notification)
         setupBootReceiver(context)
-
-        val type = AlarmManager.RTC_WAKEUP
-        val repeatInterval = AlarmManager.INTERVAL_DAY
-        val intent = createDailyPendingIntent(context, NotificationId.DAILY, ChannelId.DAILY_NOTIFICATION, notification.title)
-
-        getAlarmManager(context).setInexactRepeating(type, notification.time, repeatInterval, intent)
+        setDailyAlarm(context, notification)
     }
 
     private fun deleteDailyNotification(context: Context) {
@@ -108,5 +103,14 @@ object NotificationPlugin {
                 if (notificationsOn) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
         )
+    }
+
+    fun setDailyAlarm(context: Context, dailyNotification: DailyNotification? = null) {
+        val notification = dailyNotification ?: getDailyNotification(context) ?: return
+        val type = AlarmManager.RTC_WAKEUP
+        val repeatInterval = AlarmManager.INTERVAL_DAY
+        val intent = createDailyPendingIntent(context, NotificationId.DAILY, ChannelId.DAILY_NOTIFICATION, notification.title)
+
+        getAlarmManager(context).setInexactRepeating(type, notification.time, repeatInterval, intent)
     }
 }
