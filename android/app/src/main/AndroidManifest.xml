@@ -2,6 +2,7 @@
     package="com.seakernel.simple_mood">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name="io.flutter.app.FlutterApplication"
@@ -32,22 +33,23 @@
             />
 
         <receiver
-            android:name=".notification.DailyNotificationReceiver"
+            android:name=".notification.receivers.DailyNotificationReceiver"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name=".notification.WeeklyNotificationReceiver"
+            android:name=".notification.receivers.WeeklyNotificationReceiver"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name=".notification.ClickedNotificationReceiver"
+            android:name=".notification.receivers.ClickedNotificationReceiver"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name=".notification.NotificationBootReceiver"
+            android:name=".notification.receivers.NotificationBootReceiver"
+            android:exported="true"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

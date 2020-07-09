@@ -1,4 +1,4 @@
-package com.seakernel.simple_mood.notification
+package com.seakernel.simple_mood.notification.receivers
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -9,6 +9,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.seakernel.simple_mood.R
+import com.seakernel.simple_mood.notification.NotificationPlugin
 
 class DailyNotificationReceiver : BroadcastReceiver() {
 

@@ -38,7 +38,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
   void initState() {
     super.initState();
     _future = _getHistoricalMoods();
-    _oldestDate = widget.moodRepo.getOldestMood().then((value) => value.date).catchError((_) => null);
+    _oldestDate = widget.moodRepo.getOldestMood().then((value) => value.date).catchError((_) => null) ?? DateTime.now().toStartOfMonth();
   }
 
   @override

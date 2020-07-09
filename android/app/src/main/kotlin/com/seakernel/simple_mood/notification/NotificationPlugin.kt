@@ -10,6 +10,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
+import com.seakernel.simple_mood.notification.receivers.DailyNotificationReceiver
+import com.seakernel.simple_mood.notification.receivers.NotificationBootReceiver
+import com.seakernel.simple_mood.notification.receivers.WeeklyNotificationReceiver
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -134,7 +137,18 @@ object NotificationPlugin {
 
     fun resetAlarms(context: Context) {
         getDailyNotification(context)?.let { resetAlarm(context, it, NotificationData.Daily()) }
-        getWeeklyNotification(context)?.let { resetAlarm(context, it, NotificationData.Weekly()) }
+        getWeeklyNotification(context)?.let { resetAlarm(context, it.copy(time = validateDate(it.time, NotificationData.Weekly().interval)), NotificationData.Weekly()) }
+    }
+
+    // Returns the given time at an interval past now, or the time if it's after now.
+    // Used for weekly only, daily always gets set each time a rating happens, weekly only gets set once.
+    private fun validateDate(time: Long, interval: Long): Long {
+        val currentTime = System.currentTimeMillis()
+        var start = time
+        while (start < currentTime) {
+            start += interval
+        }
+        return start
     }
 
     fun setupNotificationChannel(context: Context, channelId: String) {

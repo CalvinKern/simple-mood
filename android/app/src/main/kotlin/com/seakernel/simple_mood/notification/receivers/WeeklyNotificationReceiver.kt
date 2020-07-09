@@ -1,4 +1,4 @@
-package com.seakernel.simple_mood.notification
+package com.seakernel.simple_mood.notification.receivers
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -9,11 +9,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.seakernel.simple_mood.MainActivity
 import com.seakernel.simple_mood.R
+import com.seakernel.simple_mood.notification.NotificationPlugin
 
 class WeeklyNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        println("Flutter WeeklyNotificationReceiver onReceive")
         val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
         val title = intent.getStringExtra(NotificationPlugin.EXTRA_TITLE)!!
