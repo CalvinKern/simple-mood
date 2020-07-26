@@ -90,6 +90,12 @@ object NotificationPlugin {
     fun getDailyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_DAILY, null))
 
+    fun delayDailyNotification(context: Context) {
+        val data = NotificationData.Daily()
+        val notification = getDailyNotification(context) ?: return
+        setNotification(context, data.prefsKey, notification.copy(time = validateDate(notification.time, data.interval)))
+    }
+
     // Notification helpers
 
     private fun getAlarmManager(context: Context): AlarmManager {
