@@ -99,6 +99,8 @@ class _Charts extends StatelessWidget {
         children: [
           RatingPicker.asTodayCard(context),
           _EmptyMood(),
+          // TODO: Add the period picker if any row exists (not just in the current period). This will require an 'exists' check on the database table
+          // https://stackoverflow.com/questions/17284688/how-to-efficiently-check-if-a-table-is-empty/17285130
         ],
       );
     } else {

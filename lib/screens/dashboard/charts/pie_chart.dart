@@ -35,15 +35,27 @@ class PieChart extends StatelessWidget {
         colorFn: (mood, _) => charts.ColorUtil.fromDartColor(mood.rating.materialColor()),
         domainFn: (mood, _) => mood.rating.index(),
         measureFn: (mood, _) => mood.count,
+        labelAccessorFn: (mood, _) => mood.count.toString(),
       ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorOnBackground = Theme.of(context).textTheme.headline4.color;
+    final insideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.Color.black);
+    final outsideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.ColorUtil.fromDartColor(colorOnBackground));
     return DashboardCard(
       title: AppLocalizations.of(context).moodCount,
-      child: charts.PieChart(data),
+      child: charts.PieChart(
+        data,
+        defaultRenderer: charts.ArcRendererConfig(arcRendererDecorators: [
+          charts.ArcLabelDecorator(
+            insideLabelStyleSpec: insideLabelStyle,
+            outsideLabelStyleSpec: outsideLabelStyle,
+          )
+        ]),
+      ),
     );
   }
 }
