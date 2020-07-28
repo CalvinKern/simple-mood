@@ -29,16 +29,18 @@ class _CalendarBody extends StatefulWidget {
 }
 
 class _CalendarBodyState extends State<_CalendarBody> {
+  static const _DEFAULT_MONTH_COUNT = 3;
+
   Future<List<_MonthData>> _future;
   Future<DateTime> _oldestDate;
-  int _monthsToLoad = 3; // TODO: Always load 3 months to start?
+  int _monthsToLoad = _DEFAULT_MONTH_COUNT;
   bool _doneLoading = false;
 
   @override
   void initState() {
     super.initState();
     _future = _getHistoricalMoods();
-    _oldestDate = widget.moodRepo.getOldestMood().then((value) => value.date).catchError((_) => null) ?? DateTime.now().toStartOfMonth();
+    _oldestDate = widget.moodRepo.getOldestMood().catchError((_) => null).then((value) => value.date ?? DateTime.now().toStartOfMonth());
   }
 
   @override
@@ -46,7 +48,9 @@ class _CalendarBodyState extends State<_CalendarBody> {
     super.didUpdateWidget(oldWidget);
     // Set the future every time dependencies change is called so we refresh data when repo gets a change
     _future = _getHistoricalMoods();
-    _doneLoading = false;
+
+    // TODO: Could also check if _doneLoading by seeing if we're at _oldestDate as well
+    _doneLoading = _monthsToLoad < _DEFAULT_MONTH_COUNT; // We're done loading if our months to load is less than 3 (otherwise, we always check)
   }
 
   @override
@@ -76,6 +80,9 @@ class _CalendarBodyState extends State<_CalendarBody> {
 
       if (await _isDoneLoading(startDate)) {
         _doneLoading = true;
+        if (_monthsToLoad > months.length) {
+          _monthsToLoad = months.length;
+        }
         break;
       }
 
