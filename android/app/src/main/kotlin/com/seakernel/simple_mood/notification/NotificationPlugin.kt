@@ -63,6 +63,9 @@ object NotificationPlugin {
         val intent = createPendingIntent(context, data, notification.title)
         if (call.argument<Boolean>(KEY_NOTIFICATION_ON) != true) return deleteNotification(context, data.prefsKey, intent)
 
+        // Dismiss the existing notification if it's showing
+        dismissShowingNotification(context, data.notificationId.ordinal)
+
         setNotification(context, data.prefsKey, notification)
         setupBootReceiver(context)
         setAlarm(context, notification, data.interval, intent)
@@ -84,6 +87,9 @@ object NotificationPlugin {
         }.apply()
     }
 
+    private fun dismissShowingNotification(context: Context, notificationId: Int) =
+            NotificationManagerCompat.from(context).cancel(notificationId)
+
     private fun getWeeklyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_WEEKLY, null))
 
@@ -93,6 +99,11 @@ object NotificationPlugin {
     fun delayDailyNotification(context: Context) {
         val data = NotificationData.Daily()
         val notification = getDailyNotification(context) ?: return
+
+        // Dismiss the existing notification if it's showing
+        dismissShowingNotification(context, NotificationData.Daily().notificationId.ordinal)
+
+        // Set the new notification
         setNotification(context, data.prefsKey, notification.copy(time = validateDate(notification.time, data.interval)))
     }
 

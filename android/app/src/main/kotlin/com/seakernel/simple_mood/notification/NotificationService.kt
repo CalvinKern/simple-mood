@@ -31,11 +31,8 @@ class NotificationService : JobIntentService() {
             channel.setMethodCallHandler { call, _ ->
                 if (call.method != METHOD_DISPATCHER_INITIALIZED) return@setMethodCallHandler
 
-                NotificationPlugin.delayDailyNotification(applicationContext)
                 sendRating(channel, intent)
-                NotificationManagerCompat
-                        .from(applicationContext)
-                        .cancel(intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0))
+                NotificationPlugin.delayDailyNotification(applicationContext)
             }
         }
     }
