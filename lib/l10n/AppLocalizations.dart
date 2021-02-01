@@ -100,7 +100,9 @@ class AppLocalizations {
 
   String get moodCount => Intl.message('Mood Count');
 
-  String get noMoods => Intl.message('No Moods\nTry adding a new one!');
+  String get neverMoods => Intl.message('No Moods\nTry adding a new one!');
+
+  String get noMoods => Intl.message('No Moods in selected period\nTry adding a new one!');
 
   String get deleteMoodTitle => Intl.message('Delete Mood?');
 

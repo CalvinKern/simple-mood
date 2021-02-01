@@ -42,13 +42,14 @@ class _BodyState extends State<_Body> {
     return FutureBuilder(
       // Set the future every time the consumer builder is called so we refresh data
       future: _getMoods(),
-      builder: (context, AsyncSnapshot<List<Mood>> snapshot) {
+      builder: (context, AsyncSnapshot<MoodSnapshot> snapshot) {
         if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else {
           // TODO: Could have a loading indicator in this body if loading a new time period
           return _Charts(
-            moods: snapshot.data,
+            moods: snapshot.data.moods,
+            neverMood: snapshot.data.neverMood,
             period: _selectedTimePeriod,
             onTimePeriodChanged: (period) => setState(() => _selectedTimePeriod = period),
           );
@@ -57,7 +58,7 @@ class _BodyState extends State<_Body> {
     );
   }
 
-  Future<List<Mood>> _getMoods() {
+  Future<MoodSnapshot> _getMoods() async {
     DateTime startTime;
     switch (_selectedTimePeriod) {
       case _TimePeriod.week:
@@ -79,35 +80,38 @@ class _BodyState extends State<_Body> {
         startTime = DateTime.fromMillisecondsSinceEpoch(0);
         break;
     }
-    return widget.repo.getMoods(startTime.toMidnight(), DateTime.now());
+    final moods = await widget.repo.getMoods(startTime.toMidnight(), DateTime.now());
+    final neverMood = await widget.repo.getOldestMood().catchError((_) => null) == null;
+    return MoodSnapshot(neverMood, moods);
   }
 }
 
 class _Charts extends StatelessWidget {
+  final bool neverMood;
   final List<Mood> moods;
   final _TimePeriod period;
   final Function(_TimePeriod) onTimePeriodChanged;
 
-  const _Charts({Key key, this.moods, this.period = _TimePeriod.week, @required this.onTimePeriodChanged})
+  const _Charts({Key key, this.moods, this.neverMood = true, this.period = _TimePeriod.week, @required this.onTimePeriodChanged})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final periodPicker = _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period));
     if (moods == null || moods.isEmpty == true) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           RatingPicker.asTodayCard(context),
-          _EmptyMood(),
-          // TODO: Add the period picker if any row exists (not just in the current period). This will require an 'exists' check on the database table
-          // https://stackoverflow.com/questions/17284688/how-to-efficiently-check-if-a-table-is-empty/17285130
+          if (!neverMood) periodPicker,
+          _EmptyMood(neverMood: neverMood),
         ],
       );
     } else {
       return ListView(
         children: [
           if (moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true) RatingPicker.asTodayCard(context),
-          _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period)),
+          periodPicker,
           TimeChart(moods: moods),
           PieChart(moods: moods),
         ],
@@ -117,11 +121,15 @@ class _Charts extends StatelessWidget {
 }
 
 class _EmptyMood extends StatelessWidget {
+  final bool neverMood;
+
+  const _EmptyMood({Key key, this.neverMood = true}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        AppLocalizations.of(context).noMoods,
+        neverMood ? AppLocalizations.of(context).neverMoods : AppLocalizations.of(context).noMoods,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.headline4,
       ),
@@ -172,3 +180,10 @@ class _PeriodPicker extends StatelessWidget {
 }
 
 enum _TimePeriod { week, month, threeMonth, halfYear, year, all }
+
+class MoodSnapshot {
+  final bool neverMood;
+  final List<Mood> moods;
+
+  MoodSnapshot(this.neverMood, this.moods);
+}
