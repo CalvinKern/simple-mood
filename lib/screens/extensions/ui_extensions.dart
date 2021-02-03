@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 
+// TODO: Massive overhaul, convert all DateTime usage() to DateTime.utc() to handle historic events better.
 extension DateFormatting on DateTime {
   String simpleFormat() => this == null ? null : DateFormat.yMd().format(this);
 
@@ -34,6 +35,12 @@ extension DateFormatting on DateTime {
 
   DateTime toEndOfMonth() {
     return DateTime(year, month + 1).subtract(Duration(days: 1));
+  }
+
+  /// This is useful to add days directly to a date, rather than a duration. A duration of a week could vary depending
+  /// on daylight savings, etc..., this applies a straight 7 days (and it's okay if it goes over)
+  DateTime addWeeks(int weeksToAdd) {
+    return DateTime(year, month, day + (7 * weeksToAdd));
   }
 }
 

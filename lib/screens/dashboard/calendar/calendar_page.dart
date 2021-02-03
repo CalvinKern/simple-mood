@@ -265,7 +265,8 @@ class _MonthData {
     // final realMonths = List<List<Mood>>(monthMoods.length).toList();
     final realMonths = List<List<Mood>>.empty(growable: true);
     for (int i = 0; i < monthMoods.length; i++) {
-      final weekStart = i == 0 ? start : start.add(Duration(days: 7 * i)).toStartOfWeek();
+      // Only do `toStartOfWeek` after the first week (don't generate missing data for last month overlaps)
+      final weekStart = i == 0 ? start : start.addWeeks(i).toStartOfWeek();
       realMonths.add(_generateMissingData(weekStart, monthMoods[i]));
     }
 
