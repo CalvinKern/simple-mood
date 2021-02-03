@@ -97,26 +97,19 @@ class _Charts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final noSelectedMoods = moods == null || moods.isEmpty;
+    // Reuse noSelectedMoods here as a safety check before calling .last
+    final notRatedToday = noSelectedMoods || moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true;
     final periodPicker = _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period));
-    if (moods == null || moods.isEmpty == true) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          RatingPicker.asTodayCard(context),
-          if (!neverMood) periodPicker,
-          _EmptyMood(neverMood: neverMood),
-        ],
-      );
-    } else {
-      return ListView(
-        children: [
-          if (moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true) RatingPicker.asTodayCard(context),
-          periodPicker,
-          TimeChart(moods: moods),
-          PieChart(moods: moods),
-        ],
-      );
-    }
+
+    return ListView(
+      children: [
+        if (noSelectedMoods || notRatedToday) RatingPicker.asTodayCard(context),
+        if (!neverMood) periodPicker,
+        if (noSelectedMoods) _EmptyMood(neverMood: neverMood)
+        else ...[TimeChart(moods: moods), PieChart(moods: moods)]
+      ],
+    );
   }
 }
 
@@ -150,32 +143,30 @@ class _PeriodPicker extends StatelessWidget {
     return DashboardCard(
       title: l10n.timePeriod,
       chartHeight: null, // Be as big as it wants
-      child: ButtonTheme(
-        minWidth: 48,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(buttonTexts.length, (index) {
-            final onPressed = () => onPeriodSelected(_TimePeriod.values[index]);
-            final period = buttonTexts[index];
-            return index == selectedPeriod.index
-                ? _getSelectedButton(context, period, onPressed)
-                : _getUnselectedButton(context, period, onPressed);
-          }),
-        ),
+      child: Wrap(
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.spaceEvenly,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: List.generate(buttonTexts.length, (index) {
+          final onPressed = () => onPeriodSelected(_TimePeriod.values[index]);
+          final period = buttonTexts[index];
+          return index == selectedPeriod.index
+              ? _getSelectedButton(context, period, onPressed)
+              : _getUnselectedButton(context, period, onPressed);
+        }),
       ),
     );
   }
 
-  Widget _getSelectedButton(BuildContext context, String period, Function() onPressed) => RaisedButton(
-        child: Text(period, style: Theme.of(context).primaryTextTheme.button),
+  Widget _getSelectedButton(BuildContext context, String period, Function() onPressed) => ElevatedButton(
+        child: Text(period),
         onPressed: onPressed,
       );
 
-  Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => FlatButton(
+  Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => TextButton(
         child: Text(period),
         onPressed: onPressed,
-        textColor: Theme.of(context).textTheme.headline4.color,
+        style: TextButton.styleFrom(primary: Theme.of(context).textTheme.headline4.color),
       );
 }
 

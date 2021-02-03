@@ -40,7 +40,10 @@ class _CalendarBodyState extends State<_CalendarBody> {
   void initState() {
     super.initState();
     _future = _getHistoricalMoods();
-    _oldestDate = widget.moodRepo.getOldestMood().catchError((_) => null).then((value) => value.date ?? DateTime.now().toStartOfMonth());
+    _oldestDate = widget.moodRepo
+        .getOldestMood()
+        .catchError((_) => null)
+        .then((value) => value?.date ?? DateTime.now().toStartOfMonth());
   }
 
   @override
@@ -72,7 +75,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
   Future<List<_MonthData>> _getHistoricalMoods() async {
     DateTime startDate = DateTime.now().toStartOfMonth();
     DateTime endDate = DateTime.now();
-    final months = List<_MonthData>();
+    final months = <_MonthData>[];
     for (int i = 0; i < _monthsToLoad; i++) {
       final future = widget.moodRepo.getMoods(startDate, endDate);
       List<Mood> moods = await future;
@@ -253,16 +256,17 @@ class _MonthData {
     final daysBetween = lastDay.toStartOfWeek().difference(firstDay).inDays;
     final weeksToShow = (daysBetween / 7).ceil() + 1;
 
-    final List<List<Mood>> monthMoods = List.generate(weeksToShow, (index) => List<Mood>().toList());
+    final List<List<Mood>> monthMoods = List.generate(weeksToShow, (index) => <Mood>[]);
     moods.forEach((element) {
       final days = element.date.toStartOfWeek().difference(firstDay).inDays;
       final weekIndex = days ~/ 7;
       monthMoods[weekIndex].add(element);
     });
-    final realMonths = List<List<Mood>>(monthMoods.length).toList();
+    // final realMonths = List<List<Mood>>(monthMoods.length).toList();
+    final realMonths = List<List<Mood>>.empty(growable: true);
     for (int i = 0; i < monthMoods.length; i++) {
       final weekStart = i == 0 ? start : start.add(Duration(days: 7 * i)).toStartOfWeek();
-      realMonths[i] = _generateMissingData(weekStart, monthMoods[i]);
+      realMonths.add(_generateMissingData(weekStart, monthMoods[i]));
     }
 
     return _MonthData._(start, realMonths);
@@ -271,7 +275,7 @@ class _MonthData {
   /// From a weeks worth of mood data, return a full week of moods generating any "missing" entries
   static List<Mood> _generateMissingData(DateTime weekStart, List<Mood> moods) {
     final firstDayOfWeek = weekStart.toStartOfWeek();
-    final weekMoods = List<Mood>(7);
+    final weekMoods = List<Mood>.filled(7, null);
 
     // Add any existing moods
     moods.forEach((element) {

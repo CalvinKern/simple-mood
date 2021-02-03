@@ -9,7 +9,7 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 class RatingPicker {
   static Future asDialog(BuildContext context, Mood mood) async {
-    await showDialog(context: context, child: _RatingDialog(mood: mood));
+    await showDialog(context: context, builder: (builder) => _RatingDialog(mood: mood));
   }
 
   static Widget asTodayCard(BuildContext context) {
@@ -71,7 +71,8 @@ class _RatingDialog extends StatelessWidget {
       title: Text(AppLocalizations.of(context).editMood(mood.date.readableFormat())),
       content: Flex(direction: Axis.horizontal, children: [RatingPicker._ratingButtons(context, mood, popOnRate: true)]),
       actions: [
-        FlatButton(
+        TextButton(
+          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel.toUpperCase()),
           onPressed: () => Navigator.of(context).pop(),
         )

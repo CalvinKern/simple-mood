@@ -27,11 +27,13 @@ class DeleteDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       title: Text(AppLocalizations.of(context).deleteMoodTitle),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
+          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
           child: Text(material.cancelButtonLabel.toUpperCase()),
           onPressed: () => _pop(context),
         ),
-        FlatButton(
+        TextButton(
+          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
           child: Text(material.deleteButtonTooltip.toUpperCase()),
           onPressed: () => _pop(context, deleteMood: true),
         ),

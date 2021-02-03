@@ -71,7 +71,7 @@ class NotificationChannel {
         if (nextTime != null) KEY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
       });
     } on PlatformException catch (e) {
-      Crashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));
+      FirebaseCrashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));
     }
   }
 
@@ -93,7 +93,7 @@ class NotificationChannel {
         if (nextTime != null) KEY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
       });
     } on PlatformException catch (e) {
-      Crashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));
+      FirebaseCrashlytics.instance.recordFlutterError(FlutterErrorDetails(exception: e));
     }
   }
 

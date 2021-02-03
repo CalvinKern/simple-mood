@@ -31,10 +31,10 @@ class _DashboardContainerState extends State<DashboardContainer> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text(AppLocalizations.of(context).pageHome)),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: AppLocalizations.of(context).pageHome),
           BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today), title: Text(AppLocalizations.of(context).pageCalendar)),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text(AppLocalizations.of(context).pageSettings)),
+              icon: Icon(Icons.calendar_today), label: AppLocalizations.of(context).pageCalendar),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: AppLocalizations.of(context).pageSettings),
         ],
       ),
       body: currentBody(),
