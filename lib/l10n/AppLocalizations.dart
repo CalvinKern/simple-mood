@@ -128,4 +128,6 @@ class AppLocalizations {
   String get dailyReminderNotificationTitle => Intl.message('How\'s your day going?');
 
   String get weeklyReminderNotificationTitle => Intl.message('Check out how your week has been!');
+
+  String get oopsWeHadAnIssue => Intl.message('Oops! There was a problem, kindly report you saw an issue and we\'ll get it fixed!');
 }

@@ -56,6 +56,15 @@ class _CalendarBodyState extends State<_CalendarBody> {
     _doneLoading = _monthsToLoad < _DEFAULT_MONTH_COUNT; // We're done loading if our months to load is less than 3 (otherwise, we always check)
   }
 
+  Widget _errorWidget(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(message, textAlign: TextAlign.center),
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -63,8 +72,10 @@ class _CalendarBodyState extends State<_CalendarBody> {
       builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
         if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return _errorWidget(AppLocalizations.of(context).oopsWeHadAnIssue);
         } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
-          return Center(child: Text(AppLocalizations.of(context).noMoods));
+          return _errorWidget(AppLocalizations.of(context).noMoods);
         } else {
           return _CalendarList(moods: snapshot.data, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
         }
@@ -76,6 +87,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
     DateTime startDate = DateTime.now().toStartOfMonth();
     DateTime endDate = DateTime.now();
     final months = <_MonthData>[];
+
     for (int i = 0; i < _monthsToLoad; i++) {
       final future = widget.moodRepo.getMoods(startDate, endDate);
       List<Mood> moods = await future;
