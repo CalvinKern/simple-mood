@@ -28,7 +28,7 @@ extension DateFormatting on DateTime {
     final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
     DateTime start = this;
     while (start.weekday != firstDay) {
-      start = start.subtract(Duration(days: 1));
+      start = DateTime(start.year, start.month, start.day - 1);
     }
     return start.toMidnight();
   }
