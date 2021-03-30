@@ -101,7 +101,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
         break;
       }
 
-      endDate = startDate.subtract(Duration(days: 1)).toMidnight();
+      endDate = startDate.subtract(Duration(days: 1)).toMidnight(utcTime: false);
       startDate = endDate.toStartOfMonth();
     }
     return months;

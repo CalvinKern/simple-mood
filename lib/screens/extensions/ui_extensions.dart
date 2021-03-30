@@ -18,9 +18,17 @@ extension DateFormatting on DateTime {
     return DateFormat.yMMM().format(this);
   }
 
-  DateTime toMidnight() => this == null ? null : DateTime(this.year, this.month, this.day);
+  DateTime toMidnight({bool utcTime = true}) => this == null
+      ? null
+      : utcTime
+          ? DateTime.utc(this.year, this.month, this.day)
+          : DateTime(this.year, this.month, this.day);
 
-  DateTime toStartOfMonth() => this == null ? null : DateTime(year, month, 1);
+  DateTime toStartOfMonth({bool utcTime = true}) => this == null
+      ? null
+      : utcTime
+          ? DateTime.utc(year, month, 1)
+          : DateTime(this.year, this.month, this.day);
 
   DateTime toStartOfWeek() {
     if (this == null) return null;
@@ -28,19 +36,19 @@ extension DateFormatting on DateTime {
     final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
     DateTime start = this;
     while (start.weekday != firstDay) {
-      start = DateTime(start.year, start.month, start.day - 1);
+      start = DateTime.utc(start.year, start.month, start.day - 1);
     }
     return start.toMidnight();
   }
 
-  DateTime toEndOfMonth() {
-    return DateTime(year, month + 1).subtract(Duration(days: 1));
+  DateTime toEndOfMonth({bool utcTime = true}) {
+    return (utcTime ? DateTime.utc(year, month + 1) : DateTime(year, month + 1)).subtract(Duration(days: 1));
   }
 
   /// This is useful to add days directly to a date, rather than a duration. A duration of a week could vary depending
   /// on daylight savings, etc..., this applies a straight 7 days (and it's okay if it goes over)
-  DateTime addWeeks(int weeksToAdd) {
-    return DateTime(year, month, day + (7 * weeksToAdd));
+  DateTime addWeeks(int weeksToAdd, {bool utcTime = true}) {
+    return utcTime ? DateTime.utc(year, month, day + (7 * weeksToAdd)) : DateTime(year, month, day + (7 * weeksToAdd));
   }
 }
 

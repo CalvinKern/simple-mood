@@ -47,7 +47,7 @@ class RatingPicker {
     if (oldMood.rating != MoodRating.missing) {
       await Provider.of<MoodRepo>(context, listen: false).updateMood(oldMood.rebuild((b) => b..rating = rating));
     } else {
-      await Provider.of<MoodRepo>(context, listen: false).create(rating, date: oldMood.date);
+      await Provider.of<MoodRepo>(context, listen: false).create(rating, date: oldMood.date.toMidnight(utcTime: false));
       if (oldMood.date.toMidnight().isAtSameMomentAs(DateTime.now().toMidnight())) {
         await Provider.of<PrefsRepo>(context, listen: false)
             .delayTodayReminder(AppLocalizations.of(context).dailyReminderNotificationTitle);
