@@ -25,11 +25,11 @@ void main() {
     );
 
     expect(
-      Provider.of<TableA>(key.currentContext, listen: false),
+      Provider.of<TableA>(key.currentContext!, listen: false),
       tableA,
     );
     expect(
-      Provider.of<TableB>(key.currentContext, listen: false),
+      Provider.of<TableB>(key.currentContext!, listen: false),
       tableB,
     );
   });
@@ -49,7 +49,7 @@ void main() {
     );
 
     expect(
-      Provider.of<TableA>(key.currentContext, listen: false),
+      Provider.of<TableA>(key.currentContext!, listen: false),
       tableA,
     );
   });
@@ -60,12 +60,12 @@ void main() {
     final tables = [tableA];
 
     final normalProvider = [
-      FutureProvider<Database>(create: (_) async => database),
+      FutureProvider<Database?>(create: (_) async => database, initialData: null,),
       ProxyProvider<Database, TableA>(update: (c, db, p) => tableA),
     ];
 
     final arrayProvider = [
-      FutureProvider<Database>(create: (_) => Future<Database>.value(database)),
+      FutureProvider<Database?>(create: (_) => Future<Database>.value(database), initialData: null,),
       ...tables.map((table) => table.getProvider()),
     ];
 

@@ -8,7 +8,7 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 class DeleteDialog extends StatelessWidget {
   final Mood _mood;
 
-  const DeleteDialog._internal(this._mood, {Key key}) : super(key: key);
+  const DeleteDialog._internal(this._mood, {Key? key}) : super(key: key);
 
   /// Shows a dialog asking for confirmation before deleting the mood.
   ///
@@ -41,7 +41,7 @@ class DeleteDialog extends StatelessWidget {
       content: Text(
         AppLocalizations.of(context).deleteMoodBody(
           _mood.date.readableFormat(),
-          _mood.rating.readableString(context),
+          _mood.rating.readableString(context) ?? "",
         ),
       ),
     );

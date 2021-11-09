@@ -5,13 +5,13 @@ import 'package:sqflite/sqflite.dart';
 abstract class DbTable {
   const DbTable({this.db});
 
-  final Database db;
+  final Database? db;
 
   /// Return a proxy provider for your subclass that is dependent on the database provider.
   /// Can't have a generic provider function since each table needs its own typed provider.
   ///
   /// e.g. => ProxyProvider<Database, T>(lazy: false, update: (_, db, __) => createNewTable(db))
-  ProxyProvider<Database, DbTable> getProvider();
+  ProxyProvider<Database?, DbTable?> getProvider();
 
   /// Function called to create the table
   Future<void> onCreate(Database db, int version);

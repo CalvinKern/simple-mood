@@ -28,5 +28,5 @@ class MoodTheme {
     );
   }
 
-  static Color primarySwatch() => Colors.teal;
+  static MaterialColor primarySwatch() => Colors.teal;
 }

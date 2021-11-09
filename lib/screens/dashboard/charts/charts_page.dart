@@ -12,12 +12,12 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 class ChartsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<MoodRepo>(
+    return Consumer<MoodRepo?>(
       builder: (context, repo, child) {
         if (repo?.readyToLoad() != true) {
           return Center(child: CircularProgressIndicator());
         }
-        return _Body(repo: repo);
+        return _Body(repo: repo!);
       },
     );
   }
@@ -27,7 +27,7 @@ class ChartsPage extends StatelessWidget {
 class _Body extends StatefulWidget {
   final MoodRepo repo;
 
-  const _Body({Key key, @required this.repo}) : super(key: key);
+  const _Body({Key? key, required this.repo}) : super(key: key);
 
   @override
   _BodyState createState() => _BodyState();
@@ -48,8 +48,8 @@ class _BodyState extends State<_Body> {
         } else {
           // TODO: Could have a loading indicator in this body if loading a new time period
           return _Charts(
-            moods: snapshot.data.moods,
-            neverMood: snapshot.data.neverMood,
+            moods: snapshot.data?.moods ?? List.empty(),
+            neverMood: snapshot.data?.neverMood ?? true,
             period: _selectedTimePeriod,
             onTimePeriodChanged: (period) => setState(() => _selectedTimePeriod = period),
           );
@@ -92,14 +92,14 @@ class _Charts extends StatelessWidget {
   final _TimePeriod period;
   final Function(_TimePeriod) onTimePeriodChanged;
 
-  const _Charts({Key key, this.moods, this.neverMood = true, this.period = _TimePeriod.week, @required this.onTimePeriodChanged})
+  const _Charts({Key? key, required this.moods, this.neverMood = true, this.period = _TimePeriod.week, required this.onTimePeriodChanged})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final noSelectedMoods = moods == null || moods.isEmpty;
+    final noSelectedMoods = moods.isEmpty;
     // Reuse noSelectedMoods here as a safety check before calling .last
-    final notRatedToday = noSelectedMoods || moods.last?.date?.isBefore(DateTime.now().toMidnight()) == true;
+    final notRatedToday = noSelectedMoods || moods.last.date.isBefore(DateTime.now().toMidnight()) == true;
     final periodPicker = _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period));
 
     return ListView(
@@ -116,7 +116,7 @@ class _Charts extends StatelessWidget {
 class _EmptyMood extends StatelessWidget {
   final bool neverMood;
 
-  const _EmptyMood({Key key, this.neverMood = true}) : super(key: key);
+  const _EmptyMood({Key? key, this.neverMood = true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,7 @@ class _PeriodPicker extends StatelessWidget {
   final _TimePeriod selectedPeriod;
   final Function(_TimePeriod) onPeriodSelected;
 
-  const _PeriodPicker({Key key, @required this.selectedPeriod, @required this.onPeriodSelected}) : super(key: key);
+  const _PeriodPicker({Key? key, required this.selectedPeriod, required this.onPeriodSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +166,7 @@ class _PeriodPicker extends StatelessWidget {
   Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => TextButton(
         child: Text(period),
         onPressed: onPressed,
-        style: TextButton.styleFrom(primary: Theme.of(context).textTheme.headline4.color),
+        style: TextButton.styleFrom(primary: Theme.of(context).textTheme.headline4?.color),
       );
 }
 

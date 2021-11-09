@@ -54,11 +54,11 @@ class NotificationChannel {
   /// [notificationOn] - true if the notification is on
   /// [skipToday] - Optional, true if today's notification should be skipped (start tomorrow). Used when entered manually in the app
   /// [time] - Required as non null if [notificationOn] is true, the time to have the notification appear
-  static Future<void> setDailyNotification(bool notificationOn, {bool skipToday, TimeOfDay time, String notificationTitle}) async {
+  static Future<void> setDailyNotification(bool notificationOn, {bool skipToday = false, TimeOfDay? time, String? notificationTitle}) async {
     assert((time != null && notificationTitle != null) || !notificationOn); // Time has to be present if notification is on
 
     final now = DateTime.now();
-    DateTime nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    DateTime? nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
     if (nextTime != null && (now.isAfter(nextTime) || skipToday)) {
       nextTime = nextTime.add(Duration(days: 1));
     }
@@ -79,11 +79,11 @@ class NotificationChannel {
   ///
   /// [notificationOn] - true if the notification is on
   /// [time] - Required as non null if [notificationOn] is true, the time to have the notification appear
-  static Future<void> setWeeklyNotification(bool notificationOn, {TimeOfDay time, String notificationTitle}) async {
+  static Future<void> setWeeklyNotification(bool notificationOn, {TimeOfDay? time, String? notificationTitle}) async {
     assert((time != null && notificationTitle != null) || !notificationOn); // Time has to be present if notification is on
 
     final now = DateTime.now().add(Duration(days: 7)).toStartOfWeek();
-    DateTime nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    DateTime? nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
 
     try {
       await _platform.invokeMethod(METHOD_SET_NOTIFICATION_WEEKLY, <String, dynamic>{
@@ -97,5 +97,5 @@ class NotificationChannel {
     }
   }
 
-  static int _callbackDispatcherHandle() => PluginUtilities.getCallbackHandle(_callbackDispatcher).toRawHandle();
+  static int _callbackDispatcherHandle() => PluginUtilities.getCallbackHandle(_callbackDispatcher)!.toRawHandle();
 }

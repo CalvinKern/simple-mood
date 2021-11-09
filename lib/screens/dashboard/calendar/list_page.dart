@@ -6,14 +6,14 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 // TODO: Needs repo setup to get moods
 class _MoodList extends StatelessWidget {
-  final List<Mood> moods;
+  final List<Mood>? moods;
 
-  const _MoodList({Key key, this.moods}) : super(key: key);
+  const _MoodList({Key? key, this.moods}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // Check for empty first
-    if (moods == null || moods.length == 0) {
+    if (moods == null || moods!.length == 0) {
       return Center(
         child: Text(
           AppLocalizations.of(context).noMoods,
@@ -22,7 +22,7 @@ class _MoodList extends StatelessWidget {
         ),
       );
     }
-    return ListView.builder(itemCount: moods.length, itemBuilder: (context, index) => _MoodTile(moods[index]));
+    return ListView.builder(itemCount: moods!.length, itemBuilder: (context, index) => _MoodTile(moods![index]));
   }
 }
 
@@ -34,7 +34,7 @@ class _MoodTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(_mood.rating.readableString(context)),
+      title: Text(_mood.rating.readableString(context) ?? ""),
       subtitle: Text(_mood.date.fullFormat()),
       onLongPress: () => _askDeleteMood(context),
     );

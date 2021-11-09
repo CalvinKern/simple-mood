@@ -6,7 +6,7 @@ import 'package:simple_mood/screens/dashboard/charts/charts_page.dart';
 import 'package:simple_mood/screens/dashboard/settings_page.dart';
 
 class DashboardContainer extends StatefulWidget {
-  DashboardContainer({Key key}) : super(key: key);
+  DashboardContainer({Key? key}) : super(key: key);
 
   @override
   _DashboardContainerState createState() => _DashboardContainerState();
@@ -18,7 +18,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
   @override
   Widget build(BuildContext context) {
     final weekHeight =
-        Theme.of(context).primaryTextTheme.headline6.fontSize + 12; // 8 padding top/bottom, plus 4 for Text offset
+        (Theme.of(context).primaryTextTheme.headline6?.fontSize ?? 12) + 12; // 8 padding top/bottom, plus 4 for Text offset
     return Scaffold(
       appBar: AppBar(
         // TODO: Can this animate height change if it's a sliver app bar?

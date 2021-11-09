@@ -50,7 +50,7 @@ class _FirebaseApp extends StatelessWidget {
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
       FirebaseCrashlytics.instance.recordFlutterError(details);
-      originalOnError(details);
+      originalOnError!(details);
     };
 
     return app;

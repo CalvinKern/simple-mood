@@ -43,7 +43,7 @@ class AppLocalizations {
   static const _AppLocalizationsDelegate delegate = _AppLocalizationsDelegate();
 
   static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+    return Localizations.of<AppLocalizations>(context, AppLocalizations) ?? AppLocalizations();
   }
 
   // App Strings

@@ -9,11 +9,11 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 ///
 /// Generates series data from list of moods using the factory constructor.
 class PieChart extends StatelessWidget {
-  final List<charts.Series> data;
+  final List<charts.Series<_PieCountData, int>> data;
 
-  PieChart._internal({this.data, Key key}) : super(key: key);
+  PieChart._internal({required this.data, Key? key}) : super(key: key);
 
-  factory PieChart({List<Mood> moods, Key key}) {
+  factory PieChart({required List<Mood> moods, Key? key}) {
     return PieChart._internal(data: _convertMoodData(moods), key: key);
   }
 
@@ -24,7 +24,7 @@ class PieChart extends StatelessWidget {
 
     // Sort keys for better looking pie chart and don't include unused ratings (makes 100% pie look better)
     final data = (counts.keys.toList(growable: false)..sort((a, b) => a.index().compareTo(b.index())))
-        .map((rating) => _PieCountData(rating, counts[rating]))
+        .map((rating) => _PieCountData(rating, counts[rating] ?? 0))
         .toList(growable: false);
 
     // TODO: Should use some kind of label for a11y, not just rating color
@@ -42,12 +42,12 @@ class PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorOnBackground = Theme.of(context).textTheme.headline4.color;
+    final colorOnBackground = Theme.of(context).textTheme.headline4?.color ?? Colors.white;
     final insideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.Color.black);
     final outsideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.ColorUtil.fromDartColor(colorOnBackground));
     return DashboardCard(
       title: AppLocalizations.of(context).moodCount,
-      child: charts.PieChart(
+      child: charts.PieChart<int>(
         data,
         defaultRenderer: charts.ArcRendererConfig(arcRendererDecorators: [
           charts.ArcLabelDecorator(

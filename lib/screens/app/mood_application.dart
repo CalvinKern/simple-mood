@@ -19,7 +19,7 @@ class MoodApp extends StatelessWidget {
 
   final MoodTheme theme;
 
-  const MoodApp({Key key, this.theme = const MoodTheme()}) : super(key: key);
+  const MoodApp({Key? key, this.theme = const MoodTheme()}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

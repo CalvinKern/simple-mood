@@ -5,34 +5,27 @@ import 'package:simple_mood/models/mood.dart';
 
 // TODO: Massive overhaul, convert all DateTime usage() to DateTime.utc() to handle historic events better.
 extension DateFormatting on DateTime {
-  String simpleFormat() => this == null ? null : DateFormat.yMd().format(this);
+  String simpleFormat() => DateFormat.yMd().format(this);
 
-  String readableFormat() => this == null ? null : DateFormat.yMMMMd().format(this);
+  String readableFormat() => DateFormat.yMMMMd().format(this);
 
-  String fullFormat() => this == null ? null : (DateFormat.yMd()..add_jm()).format(this);
+  String fullFormat() => (DateFormat.yMd()..add_jm()).format(this);
 
   // Pass in a 'now' to get the year added to the month format
-  String monthFormat({DateTime now}) {
-    if (this == null) return null;
+  String? monthFormat({DateTime? now}) {
     if (now == null || now.year == this.year) return DateFormat.MMMM().format(this);
     return DateFormat.yMMM().format(this);
   }
 
-  DateTime toMidnight({bool utcTime = true}) => this == null
-      ? null
-      : utcTime
+  DateTime toMidnight({bool utcTime = true}) => utcTime
           ? DateTime.utc(this.year, this.month, this.day)
           : DateTime(this.year, this.month, this.day);
 
-  DateTime toStartOfMonth({bool utcTime = true}) => this == null
-      ? null
-      : utcTime
+  DateTime toStartOfMonth({bool utcTime = true}) => utcTime
           ? DateTime.utc(year, month, 1)
           : DateTime(this.year, this.month, this.day);
 
   DateTime toStartOfWeek() {
-    if (this == null) return null;
-
     final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
     DateTime start = this;
     while (start.weekday != firstDay) {
@@ -96,7 +89,7 @@ extension MoodResource on MoodRating {
     }
   }
 
-  String readableString(BuildContext context) {
+  String? readableString(BuildContext context) {
     switch (this) {
       case MoodRating.miserable:
         return AppLocalizations.of(context).ratingMiserable;

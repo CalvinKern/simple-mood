@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 class DashboardCard extends StatelessWidget {
   final String title;
   final Widget child;
-  final double chartHeight; // Nullable, let's child be as big as it wants
+  final double? chartHeight; // Nullable, let's child be as big as it wants
 
-  const DashboardCard({Key key, this.title, this.child, this.chartHeight = 250}) : super(key: key);
+  const DashboardCard({Key? key, required this.title, required this.child, this.chartHeight = 250}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -16,7 +16,7 @@ class DbHelper {
   static const DB_NAME = 'simple_moods.db';
 
   final List<DbTable> _tables; // List of tables that use the database
-  final Future<Database> _database; // The database to use instead of SQFlite
+  final Future<Database?>? _database; // The database to use instead of SQFlite
 
   const DbHelper([
     this._tables = _PRODUCTION_TABLES,
@@ -25,12 +25,12 @@ class DbHelper {
 
   /// Get all of the providers for database access
   List<SingleChildWidget> dbProviders() => [
-        FutureProvider<Database>(lazy: false, create: (_) => getDatabase()),
+        FutureProvider<Database?>(lazy: false, initialData: null, create: (_) => getDatabase()),
         ..._tables.map((table) => table.getProvider()),
       ];
 
   /// Open the database, or use the provided one (testing)
-  Future<Database> getDatabase() =>
+  Future<Database?> getDatabase() =>
       _database ?? openDatabase(DB_NAME, version: DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
 
   /// Run create on each table

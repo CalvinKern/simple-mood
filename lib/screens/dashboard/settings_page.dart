@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PrefsRepo>(
       builder: (context, prefs, _) {
-        if (prefs?.readyToLoad() != true)
+        if (prefs.readyToLoad() != true)
           return Center(child: CircularProgressIndicator());
         else
           return _SettingsPage(prefs);
@@ -23,7 +23,7 @@ class SettingsPage extends StatelessWidget {
 class _SettingsPage extends StatelessWidget {
   final PrefsRepo _prefs;
 
-  const _SettingsPage(this._prefs, {Key key}) : super(key: key);
+  const _SettingsPage(this._prefs, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +103,12 @@ class _SettingsPage extends StatelessWidget {
 /// be used with the provided [switchValue] and [onChanged].
 class _SettingsTile extends StatelessWidget {
   final String title;
-  final String subtitle;
-  final bool switchValue;
-  final ValueChanged<bool> onChanged;
-  final GestureTapCallback onTap;
+  final String? subtitle;
+  final bool? switchValue;
+  final ValueChanged<bool>? onChanged;
+  final GestureTapCallback? onTap;
 
-  const _SettingsTile({Key key, this.title, this.subtitle, this.switchValue, this.onChanged, this.onTap})
+  const _SettingsTile({Key? key, required this.title, this.subtitle, this.switchValue, this.onChanged, this.onTap})
       : super(key: key);
 
   @override
@@ -116,14 +116,14 @@ class _SettingsTile extends StatelessWidget {
     if (switchValue != null)
       return SwitchListTile.adaptive(
         title: Text(title),
-        subtitle: subtitle == null ? null : Text(subtitle),
-        value: switchValue,
+        subtitle: subtitle == null ? null : Text(subtitle!),
+        value: switchValue!,
         onChanged: onChanged,
       );
     else
       return ListTile(
         title: Text(title),
-        subtitle: subtitle == null ? null : Text(subtitle),
+        subtitle: subtitle == null ? null : Text(subtitle!),
         onTap: onTap,
       );
   }

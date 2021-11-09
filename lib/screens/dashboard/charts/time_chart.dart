@@ -10,11 +10,11 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 ///
 /// Generates series data from list of moods using the factory constructor.
 class TimeChart extends StatelessWidget {
-  final List<charts.Series> data;
+  final List<charts.Series<_TimeChartData, DateTime>> data;
 
-  TimeChart._internal({this.data, Key key}) : super(key: key);
+  TimeChart._internal({required this.data, Key? key}) : super(key: key);
 
-  factory TimeChart({List<Mood> moods, Key key}) {
+  factory TimeChart({required List<Mood> moods, Key? key}) {
     return TimeChart._internal(data: _convertMoodData(moods), key: key);
   }
 

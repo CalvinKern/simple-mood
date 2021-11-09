@@ -24,7 +24,7 @@ class RatingPicker {
     );
   }
 
-  static Widget _ratingButtons(BuildContext context, Mood mood, {double horizontalPadding, bool popOnRate = false}) {
+  static Widget _ratingButtons(BuildContext context, Mood mood, {double? horizontalPadding, bool popOnRate = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -63,7 +63,7 @@ class RatingPicker {
 class _RatingDialog extends StatelessWidget {
   final Mood mood;
 
-  _RatingDialog({this.mood});
+  _RatingDialog({required this.mood});
 
   @override
   Widget build(BuildContext context) {

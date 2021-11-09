@@ -14,7 +14,7 @@ final _PRODUCTION_REPOS = [
 ];
 
 class RepoHelper {
-  final List<Repo> _repos;
+  final List<Repo>? _repos;
   final DbHelper _dbHelper;
 
   const RepoHelper([
@@ -24,7 +24,7 @@ class RepoHelper {
 
   List<SingleChildWidget> repoProviders() => [
         // Repo dependencies
-        FutureProvider<SharedPreferences>(lazy: false, create: (_) => SharedPreferences.getInstance()),
+        FutureProvider<SharedPreferences?>(lazy: false, initialData: null, create: (_) => SharedPreferences.getInstance()),
         ..._dbHelper.dbProviders(),
         // Repos
         ...(_repos ?? _PRODUCTION_REPOS).map((table) => table.getProvider()),
@@ -36,7 +36,7 @@ abstract class Repo extends ChangeNotifier {
   /// Can't have a generic provider function since each repo needs its own typed provider.
   ///
   /// e.g. => ChangeNotifierProxyProvider<YourTable, YourRepo>(create: (_) => null, update: (_, db, __) => createNewRepo(db))
-  dynamic getProvider();
+  ChangeNotifierProxyProvider getProvider();
 
   bool readyToLoad();
 }

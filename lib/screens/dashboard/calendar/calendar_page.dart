@@ -6,12 +6,13 @@ import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
 import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class CalendarPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<MoodRepo>(builder: (context, repo, child) {
-      if (repo?.readyToLoad() != true) {
+      if (repo.readyToLoad() != true) {
         return Center(child: CircularProgressIndicator());
       }
       return _CalendarBody(moodRepo: repo);
@@ -22,7 +23,7 @@ class CalendarPage extends StatelessWidget {
 class _CalendarBody extends StatefulWidget {
   final MoodRepo moodRepo;
 
-  const _CalendarBody({Key key, @required this.moodRepo}) : super(key: key);
+  const _CalendarBody({Key? key, required this.moodRepo}) : super(key: key);
 
   @override
   _CalendarBodyState createState() => _CalendarBodyState();
@@ -31,8 +32,8 @@ class _CalendarBody extends StatefulWidget {
 class _CalendarBodyState extends State<_CalendarBody> {
   static const _DEFAULT_MONTH_COUNT = 3;
 
-  Future<List<_MonthData>> _future;
-  Future<DateTime> _oldestDate;
+  Future<List<_MonthData>>? _future;
+  Future<DateTime>? _oldestDate;
   int _monthsToLoad = _DEFAULT_MONTH_COUNT;
   bool _doneLoading = false;
 
@@ -73,17 +74,20 @@ class _CalendarBodyState extends State<_CalendarBody> {
         if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
+          // var e = FlutterErrorDetails(exception: snapshot.error);
+          // FirebaseCrashlytics.instance.recordFlutterError();
           return _errorWidget(AppLocalizations.of(context).oopsWeHadAnIssue);
-        } else if (snapshot.data.isEmpty || snapshot.data.every((element) => element.moodsByWeek.isEmpty)) {
+        } else if (snapshot.data!.isEmpty || snapshot.data!.every((element) => element.moodsByWeek.isEmpty)) {
           return _errorWidget(AppLocalizations.of(context).noMoods);
         } else {
-          return _CalendarList(moods: snapshot.data, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
+          return _CalendarList(moods: snapshot.data!, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
         }
       },
     );
   }
 
   Future<List<_MonthData>> _getHistoricalMoods() async {
+    // throw Error();
     DateTime startDate = DateTime.now().toStartOfMonth();
     DateTime endDate = DateTime.now();
     final months = <_MonthData>[];
@@ -112,7 +116,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
     _monthsToLoad++; // Increment the month count so when repo has a change we build the same number of months
     final start = startDate.toStartOfMonth();
     final data = await widget.moodRepo.getMoods(start, startDate.toEndOfMonth());
-    _future = Future.value((await _future)..add(_MonthData.fromMonthData(start, data)));
+    _future = Future.value((await _future)!..add(_MonthData.fromMonthData(start, data)));
     _doneLoading = await _isDoneLoading(start);
     setState(() {});
   }
@@ -128,8 +132,8 @@ class _CalendarList extends StatefulWidget {
   final void Function(DateTime startDate) onLoadNextMonth;
 
   // Add a null for the paged loading spot
-  _CalendarList({Key key, List<_MonthData> moods, this.onLoadNextMonth, bool doneLoading = false})
-      : this.moodsByMonth = doneLoading ? moods : moods + const [null],
+  _CalendarList({Key? key, required List<_MonthData> moods, required this.onLoadNextMonth, bool doneLoading = false})
+      : this.moodsByMonth = doneLoading ? moods : moods + const [],
         super(key: key);
 
   @override
@@ -139,7 +143,7 @@ class _CalendarList extends StatefulWidget {
 class __CalendarListState extends State<_CalendarList> {
   final ScrollController _controller = ScrollController();
 
-  bool isLoading;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -155,8 +159,7 @@ class __CalendarListState extends State<_CalendarList> {
 
   void _onScroll() {
     if (isLoading ||
-        _controller.position.extentAfter > _LoadingWidget.LOADING_HEIGHT ||
-        widget.onLoadNextMonth == null) {
+        _controller.position.extentAfter > _LoadingWidget.LOADING_HEIGHT) {
       return;
     }
     isLoading = true;
@@ -192,28 +195,29 @@ class _LoadingWidget extends StatelessWidget {
 }
 
 class _MoodMonth extends StatelessWidget {
-  final _MonthData month;
+  final _MonthData? month;
 
-  const _MoodMonth({Key key, this.month}) : super(key: key);
+  const _MoodMonth({Key? key, this.month}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (month == null) {
+    var buildMonth = month;
+    if (buildMonth == null) {
       return _LoadingWidget();
     }
     return Column(
       children: [
-        Text(month.start.monthFormat(now: DateTime.now()), style: Theme.of(context).textTheme.headline4),
-        ...month.moodsByWeek.map((moods) => _MoodWeek(moods: moods)).toList(),
+        Text(buildMonth.start.monthFormat(now: DateTime.now()) ?? "", style: Theme.of(context).textTheme.headline4),
+        ...buildMonth.moodsByWeek.map((moods) => _MoodWeek(moods: moods)).toList(),
       ],
     );
   }
 }
 
 class _MoodWeek extends StatelessWidget {
-  final List<Mood> moods;
+  final List<Mood?> moods;
 
-  const _MoodWeek({Key key, this.moods}) : super(key: key);
+  const _MoodWeek({Key? key, required this.moods}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +231,7 @@ class _MoodWeek extends StatelessWidget {
 class _MoodDay extends StatelessWidget {
   final Mood mood;
 
-  const _MoodDay({Key key, @required this.mood}) : super(key: key);
+  const _MoodDay({Key? key, required this.mood}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +258,7 @@ class _MoodDay extends StatelessWidget {
 /// A temp class to hold basic calendar logic for getting data ready for the view. Is not pretty/efficient, will improve later
 class _MonthData {
   final DateTime start;
-  final List<List<Mood>> moodsByWeek;
+  final List<List<Mood?>> moodsByWeek;
 
   const _MonthData._(this.start, this.moodsByWeek);
 
@@ -275,7 +279,7 @@ class _MonthData {
       monthMoods[weekIndex].add(element);
     });
     // final realMonths = List<List<Mood>>(monthMoods.length).toList();
-    final realMonths = List<List<Mood>>.empty(growable: true);
+    final realMonths = List<List<Mood?>>.empty(growable: true);
     for (int i = 0; i < monthMoods.length; i++) {
       // Only do `toStartOfWeek` after the first week (don't generate missing data for last month overlaps)
       final weekStart = i == 0 ? start : start.addWeeks(i).toStartOfWeek();
@@ -286,14 +290,19 @@ class _MonthData {
   }
 
   /// From a weeks worth of mood data, return a full week of moods generating any "missing" entries
-  static List<Mood> _generateMissingData(DateTime weekStart, List<Mood> moods) {
+  static List<Mood?> _generateMissingData(DateTime weekStart, List<Mood?> moods) {
     final firstDayOfWeek = weekStart.toStartOfWeek();
-    final weekMoods = List<Mood>.filled(7, null);
+    final weekMoods = List<Mood?>.filled(7, null);
 
     // Add any existing moods
     moods.forEach((element) {
-      final day = element.date.toMidnight().difference(firstDayOfWeek).inDays;
-      weekMoods[day] = element;
+      if (element != null) {
+        final day = element.date
+            .toMidnight()
+            .difference(firstDayOfWeek)
+            .inDays;
+        weekMoods[day] = element;
+      }
     });
 
     // Find each missing day in the week and add a missing mood
