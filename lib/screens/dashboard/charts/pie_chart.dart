@@ -42,7 +42,7 @@ class PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorOnBackground = Theme.of(context).textTheme.headline4?.color ?? Colors.white;
+    final colorOnBackground = Theme.of(context).textTheme.headline4?.color ?? Colors.grey;
     final insideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.Color.black);
     final outsideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.ColorUtil.fromDartColor(colorOnBackground));
     return DashboardCard(

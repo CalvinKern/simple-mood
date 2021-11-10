@@ -51,11 +51,15 @@ class TimeChart extends StatelessWidget {
           ),
           Flexible(
             // TODO: Add support for showing date when clicking a data point: https://github.com/google/charts/issues/58
-            // TODO: Time labels aren't legible in dark mode
             child: charts.TimeSeriesChart(
               data,
               defaultRenderer: charts.LineRendererConfig(includePoints: true),
               domainAxis: charts.DateTimeAxisSpec(
+                renderSpec: charts.SmallTickRendererSpec<DateTime>(
+                  labelStyle: charts.TextStyleSpec(
+                    color: charts.ColorUtil.fromDartColor(Theme.of(context).textTheme.headline4?.color ?? Colors.grey),
+                  ),
+                ),
                 tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
                   hour: chartTimeFormatter,
                   minute: chartTimeFormatter,
@@ -88,4 +92,3 @@ class _TimeChartData {
       : this.date = mood.date,
         this.rating = mood.rating.index() + 1;
 }
-
