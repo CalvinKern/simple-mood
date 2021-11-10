@@ -80,8 +80,9 @@ class _CalendarBodyState extends State<_CalendarBody> {
     if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
       return Center(child: CircularProgressIndicator());
     } else if (snapshot.hasError) {
-      // var e = FlutterErrorDetails(exception: snapshot.error);
-      // FirebaseCrashlytics.instance.recordFlutterError();
+      var e = FlutterErrorDetails(exception: snapshot.error!, stack: snapshot.stackTrace);
+      FirebaseCrashlytics.instance.recordFlutterError(e);
+
       return _errorWidget(AppLocalizations.of(context).oopsWeHadAnIssue);
     } else if (snapshot.data!.isEmpty || snapshot.data!.every((element) => element?.moodsByWeek.isEmpty ?? false)) {
       return _errorWidget(AppLocalizations.of(context).noMoods);
