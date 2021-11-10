@@ -33,7 +33,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -46,8 +46,8 @@ android {
 
     defaultConfig {
         applicationId "com.seakernel.simple_mood"
-        minSdkVersion 16
-        targetSdkVersion 29
+        minSdkVersion 19
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -63,6 +63,7 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+//            ndk.debugSymbolLevel = 'FULL' // Needs NDK and CMake installed via sdk manager
         }
     }
 }
@@ -75,7 +76,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.firebase:firebase-analytics:18.0.2'
+    implementation 'com.google.firebase:firebase-analytics:20.0.0'
 
     // TODO: Include this for local, native plugin crashes? Or do we get this for free? If not, how do we sync with the flutter version?
 //    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
