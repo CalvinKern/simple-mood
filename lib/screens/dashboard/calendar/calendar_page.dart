@@ -70,20 +70,24 @@ class _CalendarBodyState extends State<_CalendarBody> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _future,
-      builder: (context, AsyncSnapshot<List<_MonthData>> snapshot) {
-        if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // var e = FlutterErrorDetails(exception: snapshot.error);
-          // FirebaseCrashlytics.instance.recordFlutterError();
-          return _errorWidget(AppLocalizations.of(context).oopsWeHadAnIssue);
-        } else if (snapshot.data!.isEmpty || snapshot.data!.every((element) => element.moodsByWeek.isEmpty)) {
-          return _errorWidget(AppLocalizations.of(context).noMoods);
-        } else {
-          return _CalendarList(moods: snapshot.data!, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
-        }
+      builder: (context, AsyncSnapshot<List<_MonthData?>> snapshot) {
+        return _buildFromSnapshot(context, snapshot);
       },
     );
+  }
+
+  Widget _buildFromSnapshot(BuildContext context, AsyncSnapshot<List<_MonthData?>> snapshot) {
+    if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      // var e = FlutterErrorDetails(exception: snapshot.error);
+      // FirebaseCrashlytics.instance.recordFlutterError();
+      return _errorWidget(AppLocalizations.of(context).oopsWeHadAnIssue);
+    } else if (snapshot.data!.isEmpty || snapshot.data!.every((element) => element?.moodsByWeek.isEmpty ?? false)) {
+      return _errorWidget(AppLocalizations.of(context).noMoods);
+    } else {
+      return _CalendarList(moods: snapshot.data!, onLoadNextMonth: _loadNextMonth, doneLoading: _doneLoading);
+    }
   }
 
   Future<List<_MonthData>> _getHistoricalMoods() async {
@@ -93,6 +97,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
     final months = <_MonthData>[];
 
     for (int i = 0; i < _monthsToLoad; i++) {
+      // print("Loading historical month: $startDate - $endDate");
       final future = widget.moodRepo.getMoods(startDate, endDate);
       List<Mood> moods = await future;
       months.add(_MonthData.fromMonthData(startDate, moods));
@@ -115,7 +120,9 @@ class _CalendarBodyState extends State<_CalendarBody> {
     if (_doneLoading) return;
     _monthsToLoad++; // Increment the month count so when repo has a change we build the same number of months
     final start = startDate.toStartOfMonth();
-    final data = await widget.moodRepo.getMoods(start, startDate.toEndOfMonth());
+    final end = startDate.toEndOfMonth();
+    // print("Loading next month ($startDate) : $start - $end");
+    final data = await widget.moodRepo.getMoods(start, end);
     _future = Future.value((await _future)!..add(_MonthData.fromMonthData(start, data)));
     _doneLoading = await _isDoneLoading(start);
     setState(() {});
@@ -128,12 +135,12 @@ class _CalendarBodyState extends State<_CalendarBody> {
 }
 
 class _CalendarList extends StatefulWidget {
-  final List<_MonthData> moodsByMonth;
+  final List<_MonthData?> moodsByMonth;
   final void Function(DateTime startDate) onLoadNextMonth;
 
   // Add a null for the paged loading spot
-  _CalendarList({Key? key, required List<_MonthData> moods, required this.onLoadNextMonth, bool doneLoading = false})
-      : this.moodsByMonth = doneLoading ? moods : moods + const [],
+  _CalendarList({Key? key, required List<_MonthData?> moods, required this.onLoadNextMonth, bool doneLoading = false})
+      : this.moodsByMonth = doneLoading ? moods : [...moods, null],
         super(key: key);
 
   @override
@@ -165,7 +172,7 @@ class __CalendarListState extends State<_CalendarList> {
     isLoading = true;
 
     // Get the second to last item, since the last one is the null paged loading
-    final nextMonth = widget.moodsByMonth[widget.moodsByMonth.length - 2].start.subtract(Duration(days: 1));
+    final nextMonth = widget.moodsByMonth[widget.moodsByMonth.length - 2]!.start.subtract(Duration(days: 1));
     widget.onLoadNextMonth(nextMonth);
   }
 
@@ -265,6 +272,7 @@ class _MonthData {
   /// Split a month worth of mood data into a list of moods by week (each list in the list represents 7 days of moods).
   /// Any missing days will be generated as "missing".
   factory _MonthData.fromMonthData(DateTime start, List<Mood> moods) {
+    // print("~Parsing month data: $start (${moods.length})");
     final today = DateTime.now().toMidnight();
     final firstDay = start.toStartOfWeek();
     final lastDayOfMonth = start.toEndOfMonth();
@@ -277,6 +285,7 @@ class _MonthData {
       final days = element.date.toStartOfWeek().difference(firstDay).inDays;
       final weekIndex = days ~/ 7;
       monthMoods[weekIndex].add(element);
+      // print("~Adding ${element.rating} on ${element.date} into position $weekIndex");
     });
     // final realMonths = List<List<Mood>>(monthMoods.length).toList();
     final realMonths = List<List<Mood?>>.empty(growable: true);
