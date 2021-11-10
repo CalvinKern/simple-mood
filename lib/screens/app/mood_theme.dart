@@ -7,6 +7,10 @@ class MoodTheme {
     return ThemeData(
       brightness: Brightness.light,
       primarySwatch: primarySwatch(),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: primarySwatch(),
+        unselectedItemColor: Colors.grey.shade700,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
@@ -15,6 +19,10 @@ class MoodTheme {
     return ThemeData(
       brightness: Brightness.dark,
       primarySwatch: primarySwatch(),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: primarySwatch(),
+        unselectedItemColor: Colors.grey.shade400,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       // A warning shows when using the dark theme including this hides the warning:
       /// I/flutter (25920): Warning: The support for configuring the foreground

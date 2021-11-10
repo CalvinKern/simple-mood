@@ -56,6 +56,8 @@ class AppLocalizations {
 
   String get pageSettings => 'Settings';
 
+  String get pageList => 'Entries';
+
   String get ratingMiserable => 'Miserable';
 
   String get ratingUnhappy => 'Unhappy';

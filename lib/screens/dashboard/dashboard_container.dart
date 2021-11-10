@@ -5,6 +5,8 @@ import 'package:simple_mood/screens/dashboard/calendar/calendar_page.dart';
 import 'package:simple_mood/screens/dashboard/charts/charts_page.dart';
 import 'package:simple_mood/screens/dashboard/settings_page.dart';
 
+import 'calendar/list_page.dart';
+
 class DashboardContainer extends StatefulWidget {
   DashboardContainer({Key? key}) : super(key: key);
 
@@ -34,6 +36,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: AppLocalizations.of(context).pageHome),
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today), label: AppLocalizations.of(context).pageCalendar),
+          BottomNavigationBarItem(icon: Icon(Icons.article_rounded), label: AppLocalizations.of(context).pageList),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: AppLocalizations.of(context).pageSettings),
         ],
       ),
@@ -48,6 +51,8 @@ class _DashboardContainerState extends State<DashboardContainer> {
       case 1:
         return CalendarPage();
       case 2:
+        return ListPage();
+      case 3:
         return SettingsPage();
       default:
         throw RangeError.range(_currentIndex, 0, 2, '${this.runtimeType.toString()}#currentBody');
