@@ -23,7 +23,7 @@ extension DateFormatting on DateTime {
 
   DateTime toStartOfMonth({bool utcTime = true}) => utcTime
           ? DateTime.utc(year, month, 1)
-          : DateTime(this.year, this.month, this.day);
+          : DateTime(this.year, this.month, 1);
 
   DateTime toStartOfWeek() {
     final firstDay = DateFormat().dateSymbols.FIRSTDAYOFWEEK + 1; // DateTime weekday has monday start at 1
@@ -35,7 +35,7 @@ extension DateFormatting on DateTime {
   }
 
   DateTime toEndOfMonth({bool utcTime = true}) {
-    return (utcTime ? DateTime.utc(year, month + 1) : DateTime(year, month + 1)).subtract(Duration(days: 1));
+    return (utcTime ? DateTime.utc(year, month + 1) : DateTime(year, month + 1)).subtract(Duration(milliseconds: 1));
   }
 
   /// This is useful to add days directly to a date, rather than a duration. A duration of a week could vary depending

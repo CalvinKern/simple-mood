@@ -92,13 +92,12 @@ class _CalendarBodyState extends State<_CalendarBody> {
   }
 
   Future<List<_MonthData>> _getHistoricalMoods() async {
-    // throw Error();
-    DateTime startDate = DateTime.now().toStartOfMonth();
+    DateTime startDate = DateTime.now().toStartOfMonth().toMidnight();
     DateTime endDate = DateTime.now();
     final months = <_MonthData>[];
 
     for (int i = 0; i < _monthsToLoad; i++) {
-      // print("Loading historical month: $startDate - $endDate");
+      // print("Loading historical month: ${startDate.millisecondsSinceEpoch} - ${endDate.millisecondsSinceEpoch}");
       final future = widget.moodRepo.getMoods(startDate, endDate);
       List<Mood> moods = await future;
       months.add(_MonthData.fromMonthData(startDate, moods));
@@ -111,7 +110,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
         break;
       }
 
-      endDate = startDate.subtract(Duration(days: 1)).toMidnight(utcTime: false);
+      endDate = startDate.subtract(Duration(milliseconds: 1));
       startDate = endDate.toStartOfMonth();
     }
     return months;
@@ -122,7 +121,9 @@ class _CalendarBodyState extends State<_CalendarBody> {
     _monthsToLoad++; // Increment the month count so when repo has a change we build the same number of months
     final start = startDate.toStartOfMonth();
     final end = startDate.toEndOfMonth();
-    // print("Loading next month ($startDate) : $start - $end");
+    // print("Loading next month ($startDate) : ${start.millisecondsSinceEpoch} - ${end.millisecondsSinceEpoch}");
+    // print("---- ${DateTime.fromMillisecondsSinceEpoch(start.millisecondsSinceEpoch)} - ${DateTime.fromMillisecondsSinceEpoch(end.millisecondsSinceEpoch)}");
+    // print("++++ ${DateTime.fromMillisecondsSinceEpoch(start.millisecondsSinceEpoch, isUtc: true)} - ${DateTime.fromMillisecondsSinceEpoch(end.millisecondsSinceEpoch, isUtc: true)}");
     final data = await widget.moodRepo.getMoods(start, end);
     _future = Future.value((await _future)!..add(_MonthData.fromMonthData(start, data)));
     _doneLoading = await _isDoneLoading(start);
@@ -273,7 +274,7 @@ class _MonthData {
   /// Split a month worth of mood data into a list of moods by week (each list in the list represents 7 days of moods).
   /// Any missing days will be generated as "missing".
   factory _MonthData.fromMonthData(DateTime start, List<Mood> moods) {
-    // print("~Parsing month data: $start (${moods.length})");
+    // print("~ Parsing month data: $start (${moods.length})");
     final today = DateTime.now().toMidnight();
     final firstDay = start.toStartOfWeek();
     final lastDayOfMonth = start.toEndOfMonth();
@@ -286,7 +287,7 @@ class _MonthData {
       final days = element.date.toStartOfWeek().difference(firstDay).inDays;
       final weekIndex = days ~/ 7;
       monthMoods[weekIndex].add(element);
-      // print("~Adding ${element.rating} on ${element.date} into position $weekIndex");
+      // print("~ Adding ${element.rating} on ${element.date} into position $weekIndex");
     });
     // final realMonths = List<List<Mood>>(monthMoods.length).toList();
     final realMonths = List<List<Mood?>>.empty(growable: true);
@@ -316,7 +317,7 @@ class _MonthData {
     });
 
     // Find each missing day in the week and add a missing mood
-    final now = DateTime.now();
+    final now = DateTime.now().toMidnight();
     for (int i = 0; i < 7; i++) {
       final date = firstDayOfWeek.add(Duration(days: i)).toMidnight();
 
