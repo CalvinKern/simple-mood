@@ -82,7 +82,7 @@ class _ListPageBody extends StatelessWidget {
       } else if (snapshot.hasError) {
         return Center(child: Padding(padding: EdgeInsets.all(16), child: Text("Failed to load")));
       } else {
-        return _MoodList(moods: snapshot.data);
+        return _MoodList(moods: snapshot.data?.reversed.toList());
       }
     },);
   }
