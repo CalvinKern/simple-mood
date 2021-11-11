@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'screens/app/mood_application.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
     runApp(_FirebaseApp());
   }, (error, stackTrace) {
     FirebaseCrashlytics.instance.recordError(error, stackTrace);
