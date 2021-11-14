@@ -22,6 +22,8 @@ object NotificationPlugin {
     private const val KEY_NOTIFICATION_ON = "notificationOn"
     private const val METHOD_SET_NOTIFICATION_DAILY = "setDailyNotification"
     private const val METHOD_SET_NOTIFICATION_WEEKLY = "setWeeklyNotification"
+    private const val INTERVAL_DAILY = AlarmManager.INTERVAL_DAY;
+    private const val INTERVAL_WEEKLY = INTERVAL_DAILY * 7;
 
     private const val REQUEST_NOTIFICATION_DAILY = 0
     private const val REQUEST_NOTIFICATION_WEEKLY = 1
@@ -37,8 +39,8 @@ object NotificationPlugin {
             val interval: Long,
             val cls: Class<*>
     ) {
-        class Daily : NotificationData(notificationId = NotificationId.DAILY, channelId = ChannelId.DAILY_NOTIFICATION, requestCode = REQUEST_NOTIFICATION_DAILY, prefsKey = METHOD_SET_NOTIFICATION_DAILY, cls = DailyNotificationReceiver::class.java, interval = AlarmManager.INTERVAL_DAY)
-        class Weekly : NotificationData(notificationId = NotificationId.WEEKLY, channelId = ChannelId.WEEKLY_NOTIFICATION, requestCode = REQUEST_NOTIFICATION_WEEKLY, prefsKey = METHOD_SET_NOTIFICATION_WEEKLY, cls = WeeklyNotificationReceiver::class.java, interval = AlarmManager.INTERVAL_DAY * 7)
+        class Daily : NotificationData(notificationId = NotificationId.DAILY, channelId = ChannelId.DAILY_NOTIFICATION, requestCode = REQUEST_NOTIFICATION_DAILY, prefsKey = METHOD_SET_NOTIFICATION_DAILY, cls = DailyNotificationReceiver::class.java, interval = INTERVAL_DAILY)
+        class Weekly : NotificationData(notificationId = NotificationId.WEEKLY, channelId = ChannelId.WEEKLY_NOTIFICATION, requestCode = REQUEST_NOTIFICATION_WEEKLY, prefsKey = METHOD_SET_NOTIFICATION_WEEKLY, cls = WeeklyNotificationReceiver::class.java, interval = INTERVAL_WEEKLY)
     }
 
     const val FLUTTER_CHANNEL = "com.seakernel.simple_mood/notification"
@@ -46,6 +48,7 @@ object NotificationPlugin {
     const val EXTRA_ID_NOTIFICATION = "notificationId"
     const val EXTRA_ID_CHANNEL = "notificationChannel"
     const val EXTRA_TITLE = "notificationTitle"
+    const val EXTRA_DATE = "notificationDate"
     const val EXTRA_RATING_DAILY = "dailyNotificationRating"
 
     fun configure(context: Context, flutterEngine: FlutterEngine) {
@@ -60,7 +63,7 @@ object NotificationPlugin {
 
     private fun handleNotification(context: Context, call: MethodCall, data: NotificationData) {
         val notification = MoodNotification(call)
-        val intent = createPendingIntent(context, data, notification.title)
+        val intent = createPendingIntent(context, data, notification.title, notification.time)
         if (call.argument<Boolean>(KEY_NOTIFICATION_ON) != true) return deleteNotification(context, data.prefsKey, intent)
 
         // Dismiss the existing notification if it's showing
@@ -116,10 +119,11 @@ object NotificationPlugin {
     /**
      * Creates a pending intent for starting an alarm or returns a pending intent that can be canceled
      */
-    private fun createPendingIntent(context: Context, data: NotificationData, title: String?): PendingIntent {
+    private fun createPendingIntent(context: Context, data: NotificationData, title: String?, time: Long): PendingIntent {
         val notificationIntent = Intent(context, data.cls).apply {
             putExtra(EXTRA_ID_NOTIFICATION, data.notificationId.ordinal)
             putExtra(EXTRA_ID_CHANNEL, data.channelId.name)
+            putExtra(EXTRA_DATE, time)
             if (title != null) putExtra(EXTRA_TITLE, title)
         }
         return PendingIntent.getBroadcast(context, data.requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -148,13 +152,13 @@ object NotificationPlugin {
     }
 
     private fun resetAlarm(context: Context, notification: MoodNotification, data: NotificationData) {
-        val intent = createPendingIntent(context, data, notification.title)
+        val intent = createPendingIntent(context, data, notification.title, notification.time)
         setAlarm(context, notification, data.interval, intent)
     }
 
     fun resetAlarms(context: Context) {
         getDailyNotification(context)?.let { resetAlarm(context, it, NotificationData.Daily()) }
-        getWeeklyNotification(context)?.let { resetAlarm(context, it.copy(time = validateDate(it.time, NotificationData.Weekly().interval)), NotificationData.Weekly()) }
+        getWeeklyNotification(context)?.let { resetAlarm(context, it.copy(time = validateDate(it.time, INTERVAL_WEEKLY)), NotificationData.Weekly()) }
     }
 
     // Returns the given time at an interval past now, or the time if it's after now.

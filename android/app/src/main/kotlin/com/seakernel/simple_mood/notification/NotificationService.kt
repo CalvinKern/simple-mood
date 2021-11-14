@@ -54,7 +54,7 @@ class NotificationService : JobIntentService() {
     private fun sendRating(channel: MethodChannel, intent: Intent) {
         channel.invokeMethod(
                 METHOD_DAILY_NOTIFICATION_RATED,
-                intArrayOf(intent.getIntExtra(NotificationPlugin.EXTRA_RATING_DAILY, -1))
+                longArrayOf(intent.getIntExtra(NotificationPlugin.EXTRA_RATING_DAILY, -1).toLong(), intent.getLongExtra(NotificationPlugin.EXTRA_DATE, System.currentTimeMillis()))
         )
     }
 }

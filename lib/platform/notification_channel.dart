@@ -44,9 +44,13 @@ class NotificationChannel {
   }
 
   static Future _addRating(MethodCall call) async {
-    final rating = call.arguments[0] as int;
-      // Can't get our repo through provider, so create the repo ourselves
-    await MoodRepo(MoodTable(db: await DbHelper().getDatabase())).create(MoodRating.ratings.elementAt(rating));
+    final args = call.arguments as List<Object>? ?? List.empty();
+    final rating = args.length > 0 ? args[0] as int : -1;
+    final time = args.length > 1 ? args[1] as int : DateTime.now().millisecondsSinceEpoch;
+
+    // Can't get our repo through provider, so create the repo ourselves
+    await MoodRepo(MoodTable(db: await DbHelper().getDatabase()))
+        .create(MoodRating.ratings.elementAt(rating), date: DateTime.fromMillisecondsSinceEpoch(time, isUtc: true));
   }
 
   /// Platform channel to set the daily notification

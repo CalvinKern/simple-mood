@@ -17,17 +17,18 @@ class DailyNotificationReceiver : BroadcastReceiver() {
         val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
         val title = intent.getStringExtra(NotificationPlugin.EXTRA_TITLE)!!
-        val notification: Notification = createNotification(context, channelId, notificationId, title)
+        val time = intent.getLongExtra(NotificationPlugin.EXTRA_DATE, System.currentTimeMillis())
+        val notification: Notification = createNotification(context, channelId, notificationId, title, time)
         NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 
-    private fun createNotification(context: Context, channelId: String, notificationId: Int, title: String): Notification {
+    private fun createNotification(context: Context, channelId: String, notificationId: Int, title: String, time: Long): Notification {
         NotificationPlugin.setupNotificationChannel(context, channelId)
 
         val notificationLayout = RemoteViews("com.seakernel.simple_mood", R.layout.notification_layout).apply {
             setTextViewText(R.id.notification_title, title)
         }
-        val notificationLayoutExpanded = expandedRemoteViews(context, notificationId, title)
+        val notificationLayoutExpanded = expandedRemoteViews(context, notificationId, title, time)
 
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
                 .setContentTitle(title)
@@ -39,7 +40,7 @@ class DailyNotificationReceiver : BroadcastReceiver() {
         return builder.build()
     }
 
-    private fun expandedRemoteViews(context: Context, notificationId: Int, title: String): RemoteViews {
+    private fun expandedRemoteViews(context: Context, notificationId: Int, title: String, time: Long): RemoteViews {
         val expanded = RemoteViews("com.seakernel.simple_mood", R.layout.notification_expanded)
         expanded.setTextViewText(R.id.notification_title, title)
 
@@ -47,6 +48,7 @@ class DailyNotificationReceiver : BroadcastReceiver() {
             val intent = Intent(context, ClickedNotificationReceiver::class.java).apply {
                 putExtra(NotificationPlugin.EXTRA_RATING_DAILY, getRatingFromId(imageId))
                 putExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, notificationId)
+                putExtra(NotificationPlugin.EXTRA_DATE, time)
             }
             // Use the imageId as the request code so they don't overwrite each other with the same code
             val pendingIntent = PendingIntent.getBroadcast(context, imageId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
