@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:simple_mood/db/db_helper.dart';
 import 'package:simple_mood/db/tables/mood_table.dart';
+import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
@@ -43,14 +44,21 @@ class NotificationChannel {
     }
   }
 
+  /// HACK returns the current string to use as the header for notifications
   static Future _addRating(MethodCall call) async {
     final args = call.arguments as List<Object>? ?? List.empty();
     final rating = args.length > 0 ? args[0] as int : -1;
     final time = args.length > 1 ? args[1] as int : DateTime.now().millisecondsSinceEpoch;
 
+    // final x = DateTime.fromMillisecondsSinceEpoch(time);
+    // print("SimpleMood: _addRating for time ${x.fullFormat()}");
+
     // Can't get our repo through provider, so create the repo ourselves
     await MoodRepo(MoodTable(db: await DbHelper().getDatabase()))
         .create(MoodRating.ratings.elementAt(rating), date: DateTime.fromMillisecondsSinceEpoch(time, isUtc: true));
+
+    final title = AppLocalizations().dailyReminderNotificationTitle;
+    return title;
   }
 
   /// Platform channel to set the daily notification

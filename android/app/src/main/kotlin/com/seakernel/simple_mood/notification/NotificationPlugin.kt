@@ -118,6 +118,15 @@ object NotificationPlugin {
     fun getDailyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_DAILY, null))
 
+    fun updateDailyNotificationTitle(context: Context, title: String) {
+        val notification = getDailyNotification(context) ?: return
+        setNotification(
+                context,
+                NotificationData.Daily().prefsKey,
+                notification.copy(title = title)
+        )
+    }
+
     fun delayDailyNotification(context: Context): MoodNotification? {
         val data = NotificationData.Daily()
         val notification = getDailyNotification(context) ?: return null

@@ -127,7 +127,7 @@ class AppLocalizations {
         args: [firstDay],
       );
 
-  String get dailyReminderNotificationTitle => Intl.message('How\'s your day going?');
+  String get dailyReminderNotificationTitle => Intl.message('How\'s your %s going?');
 
   String get weeklyReminderNotificationTitle => Intl.message('Check out how your week has been!');
 

@@ -18,9 +18,13 @@ class DailyNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
+
         val dailyNotification = NotificationPlugin.delayDailyNotification(context)
         val time = dailyNotification?.time ?: System.currentTimeMillis()
-        val title = dailyNotification?.title ?: "How's your day going?"
+        val dayNameInWeek: String = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(time))
+
+        val header = dailyNotification?.title ?: "How's your day going?"
+        val title = String.format(header, dayNameInWeek)
         val notification: Notification = createNotification(context, channelId, notificationId, title, time)
 
 //        Log.d("SimpleMoodNative", "Alarm wake up to show notification: $title")
