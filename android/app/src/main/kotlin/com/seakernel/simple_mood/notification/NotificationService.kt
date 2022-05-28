@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.Handler
 import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationManagerCompat
+import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.embedding.engine.dart.DartExecutor.DartCallback
 import io.flutter.plugin.common.*
 import io.flutter.view.FlutterCallbackInformation
-import io.flutter.view.FlutterMain
 
 class NotificationService : JobIntentService() {
 
@@ -40,11 +40,12 @@ class NotificationService : JobIntentService() {
     private fun initDartIsolate(): MethodChannel {
         val callbackHandle = NotificationPlugin.getDailyNotification(applicationContext)?.callbackHandle ?: 0L
 
+        val path = FlutterInjector.instance().flutterLoader().findAppBundlePath()
         val executor: DartExecutor = FlutterEngine(applicationContext).dartExecutor
         val channel = MethodChannel(executor, NotificationPlugin.FLUTTER_CHANNEL)
         val dartCallback = DartCallback(
                 applicationContext.assets,
-                FlutterMain.findAppBundlePath(),
+                path,
                 FlutterCallbackInformation.lookupCallbackInformation(callbackHandle)
         )
         executor.executeDartCallback(dartCallback)
