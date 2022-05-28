@@ -3,8 +3,8 @@ package com.seakernel.simple_mood.notification
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.util.Log
 import androidx.core.app.JobIntentService
-import androidx.core.app.NotificationManagerCompat
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -21,6 +21,7 @@ class NotificationService : JobIntentService() {
         private const val JOB_ID = 40404
 
         fun handleNotification(context: Context, intent: Intent) {
+//            Log.d("SimpleMoodNative", "Notification clicked")
             enqueueWork(context, NotificationService::class.java, JOB_ID, intent)
         }
     }
@@ -29,10 +30,13 @@ class NotificationService : JobIntentService() {
         Handler(applicationContext.mainLooper).post {
             val channel = initDartIsolate()
             channel.setMethodCallHandler { call, _ ->
-                if (call.method != METHOD_DISPATCHER_INITIALIZED) return@setMethodCallHandler
-
-                sendRating(channel, intent)
-                NotificationPlugin.delayDailyNotification(applicationContext)
+                when(call.method) {
+                    METHOD_DISPATCHER_INITIALIZED -> {
+                        NotificationPlugin.dismissDailyNotification(applicationContext)
+                        sendRating(channel, intent)
+                    }
+                    else -> Log.d("SimpleMoodNative", "-=-=-=MethodCallHandler unsupported for ${call.method}")
+                }
             }
         }
     }
@@ -53,9 +57,18 @@ class NotificationService : JobIntentService() {
     }
 
     private fun sendRating(channel: MethodChannel, intent: Intent) {
+        val rating = intent.getIntExtra(NotificationPlugin.EXTRA_RATING_DAILY, -1).toLong()
+        val date = intent.getLongExtra(NotificationPlugin.EXTRA_DATE, System.currentTimeMillis())
+
+//        Log.d("SimpleMood-Native", "Sending rating")
+//        val d = Date(date)
+//        val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+//        val time: String = formatter.format(d)
+//        Log.d("SimpleMood-Native", "Invoking flutter with parameters: $rating --- $time")
+
         channel.invokeMethod(
                 METHOD_DAILY_NOTIFICATION_RATED,
-                longArrayOf(intent.getIntExtra(NotificationPlugin.EXTRA_RATING_DAILY, -1).toLong(), intent.getLongExtra(NotificationPlugin.EXTRA_DATE, System.currentTimeMillis()))
+                longArrayOf(rating, date)
         )
     }
 }

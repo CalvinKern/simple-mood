@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.seakernel.simple_mood.notification.receivers.DailyNotificationReceiver
 import com.seakernel.simple_mood.notification.receivers.NotificationBootReceiver
@@ -17,13 +18,12 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-
 object NotificationPlugin {
     private const val KEY_NOTIFICATION_ON = "notificationOn"
     private const val METHOD_SET_NOTIFICATION_DAILY = "setDailyNotification"
     private const val METHOD_SET_NOTIFICATION_WEEKLY = "setWeeklyNotification"
-    private const val INTERVAL_DAILY = AlarmManager.INTERVAL_DAY;
-    private const val INTERVAL_WEEKLY = INTERVAL_DAILY * 7;
+    private const val INTERVAL_DAILY = AlarmManager.INTERVAL_DAY
+    private const val INTERVAL_WEEKLY = INTERVAL_DAILY * 7
 
     private const val REQUEST_NOTIFICATION_DAILY = 0
     private const val REQUEST_NOTIFICATION_WEEKLY = 1
@@ -47,7 +47,6 @@ object NotificationPlugin {
 
     const val EXTRA_ID_NOTIFICATION = "notificationId"
     const val EXTRA_ID_CHANNEL = "notificationChannel"
-    const val EXTRA_TITLE = "notificationTitle"
     const val EXTRA_DATE = "notificationDate"
     const val EXTRA_RATING_DAILY = "dailyNotificationRating"
 
@@ -59,11 +58,27 @@ object NotificationPlugin {
             }
             result.success(null)
         }
+
+        // Check if we need to reset the notification alarm
+        val intent = this.createPendingIntent(context, NotificationData.Daily(), true)
+        if (intent == null) {
+            Log.d("SimpleMoodNative", "No alarm pending intent stored, but there should be...")
+            resetAlarms(context) // No alarm set, but there should be one
+//        } else {
+//            val dailyNotification = getDailyNotification(context) ?: return
+//            val date = Date(dailyNotification.time)
+//            val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+//            val t: String = formatter.format(date)
+//
+//            Log.d("SimpleMoodNative", "Pending intent exists: $t")
+        }
     }
 
     private fun handleNotification(context: Context, call: MethodCall, data: NotificationData) {
+//        Log.d("SimpleMoodNative", "HANDLE_NOTIFICATION")
+
         val notification = MoodNotification(call)
-        val intent = createPendingIntent(context, data, notification.title, notification.time)
+        val intent = createPendingIntent(context, data, false)!! // Should always have an intent for a non-safety check
         if (call.argument<Boolean>(KEY_NOTIFICATION_ON) != true) return deleteNotification(context, data.prefsKey, intent)
 
         // Dismiss the existing notification if it's showing
@@ -90,24 +105,26 @@ object NotificationPlugin {
         }.apply()
     }
 
+    fun dismissDailyNotification(context: Context) {
+        dismissShowingNotification(context, NotificationData.Daily().notificationId.ordinal)
+    }
+
     private fun dismissShowingNotification(context: Context, notificationId: Int) =
             NotificationManagerCompat.from(context).cancel(notificationId)
 
-    private fun getWeeklyNotification(context: Context) =
+    fun getWeeklyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_WEEKLY, null))
 
     fun getDailyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_DAILY, null))
 
-    fun delayDailyNotification(context: Context) {
+    fun delayDailyNotification(context: Context): MoodNotification? {
         val data = NotificationData.Daily()
-        val notification = getDailyNotification(context) ?: return
-
-        // Dismiss the existing notification if it's showing
-        dismissShowingNotification(context, NotificationData.Daily().notificationId.ordinal)
+        val notification = getDailyNotification(context) ?: return null
 
         // Set the new notification
         setNotification(context, data.prefsKey, notification.copy(time = validateDate(notification.time, data.interval)))
+        return notification
     }
 
     // Notification helpers
@@ -117,16 +134,16 @@ object NotificationPlugin {
     }
 
     /**
-     * Creates a pending intent for starting an alarm or returns a pending intent that can be canceled
+     * Creates a pending intent for starting an alarm or returns a pending intent that can be canceled.
+     * Can return null ONLY if safetyCheck is true and no intent has already been registered
      */
-    private fun createPendingIntent(context: Context, data: NotificationData, title: String?, time: Long): PendingIntent {
+    private fun createPendingIntent(context: Context, data: NotificationData, safetyCheck: Boolean): PendingIntent? {
         val notificationIntent = Intent(context, data.cls).apply {
             putExtra(EXTRA_ID_NOTIFICATION, data.notificationId.ordinal)
             putExtra(EXTRA_ID_CHANNEL, data.channelId.name)
-            putExtra(EXTRA_DATE, time)
-            if (title != null) putExtra(EXTRA_TITLE, title)
         }
-        return PendingIntent.getBroadcast(context, data.requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val flag = if (safetyCheck) PendingIntent.FLAG_NO_CREATE else PendingIntent.FLAG_UPDATE_CURRENT
+        return PendingIntent.getBroadcast(context, data.requestCode, notificationIntent, flag)
     }
 
     private fun deleteNotification(context: Context, prefsKey: String, intent: PendingIntent) {
@@ -147,12 +164,17 @@ object NotificationPlugin {
     }
 
     private fun setAlarm(context: Context, notification: MoodNotification, interval: Long, intent: PendingIntent) {
+//        val date = Date(notification.time)
+//        val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+//        val time: String = formatter.format(date)
+//        Log.d("SimpleMoodNative", "Set alarm for date: $time")
+
         val type = AlarmManager.RTC_WAKEUP
         getAlarmManager(context).setInexactRepeating(type, notification.time, interval, intent)
     }
 
     private fun resetAlarm(context: Context, notification: MoodNotification, data: NotificationData) {
-        val intent = createPendingIntent(context, data, notification.title, notification.time)
+        val intent = createPendingIntent(context, data, false)!!
         setAlarm(context, notification, data.interval, intent)
     }
 

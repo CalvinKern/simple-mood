@@ -10,15 +10,20 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.seakernel.simple_mood.R
 import com.seakernel.simple_mood.notification.NotificationPlugin
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DailyNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
-        val title = intent.getStringExtra(NotificationPlugin.EXTRA_TITLE)!!
-        val time = intent.getLongExtra(NotificationPlugin.EXTRA_DATE, System.currentTimeMillis())
+        val dailyNotification = NotificationPlugin.delayDailyNotification(context)
+        val time = dailyNotification?.time ?: System.currentTimeMillis()
+        val title = dailyNotification?.title ?: "How's your day going?"
         val notification: Notification = createNotification(context, channelId, notificationId, title, time)
+
+//        Log.d("SimpleMoodNative", "Alarm wake up to show notification: $title")
         NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 

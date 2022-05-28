@@ -16,7 +16,7 @@ class WeeklyNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val notificationId = intent.getIntExtra(NotificationPlugin.EXTRA_ID_NOTIFICATION, 0)
         val channelId = intent.getStringExtra(NotificationPlugin.EXTRA_ID_CHANNEL)!!
-        val title = intent.getStringExtra(NotificationPlugin.EXTRA_TITLE)!!
+        val title = NotificationPlugin.getWeeklyNotification(context)!!.title!!
         val notification: Notification = createNotification(context, channelId, notificationId, title)
         NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
