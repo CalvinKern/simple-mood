@@ -118,12 +118,17 @@ object NotificationPlugin {
     fun getDailyNotification(context: Context) =
             MoodNotification.fromJson(sharedPrefs(context).getString(METHOD_SET_NOTIFICATION_DAILY, null))
 
-    fun updateDailyNotificationTitle(context: Context, title: String) {
-        val notification = getDailyNotification(context) ?: return
+    fun updateDailyNotification(context: Context, update: String) {
+        val nextDaily = MoodNotification.fromDartJson(update)
+        val oldDaily = getDailyNotification(context) ?: return
+        val time = validateDate(nextDaily?.time ?: oldDaily.time, NotificationData.Daily().interval)
         setNotification(
                 context,
                 NotificationData.Daily().prefsKey,
-                notification.copy(title = title)
+                oldDaily.copy(
+                        title = nextDaily?.title ?: oldDaily.title,
+                        time = time
+                )
         )
     }
 

@@ -72,9 +72,9 @@ class NotificationService : JobIntentService() {
                 object : MethodChannel.Result {
                     override fun success(result: Any?) {
 //                        Log.d("SimpleMoodNative", "result after sending rating: $result")
-                        val title = result as? String ?: return
+                        val update = result as? String ?: return
                         // Hack to get the title updated without having to manually set the notification again
-                        NotificationPlugin.updateDailyNotificationTitle(applicationContext, title)
+                        NotificationPlugin.updateDailyNotification(applicationContext, update)
                     }
 
                     override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {}

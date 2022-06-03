@@ -25,7 +25,7 @@ class MoodTable extends DbTable {
   static Mood deserialize(Map<String, dynamic> mood) {
     return Mood((b) => b
       ..id = mood[_COLUMN_ID]
-      ..date = DateTime.fromMillisecondsSinceEpoch(mood[_COLUMN_DATE])
+      ..date = DateTime.fromMillisecondsSinceEpoch(mood[_COLUMN_DATE], isUtc: true)
       ..rating = MoodRating.valueOf(mood[_COLUMN_RATING]));
   }
 

@@ -97,7 +97,7 @@ class _CalendarBodyState extends State<_CalendarBody> {
     final months = <_MonthData>[];
 
     for (int i = 0; i < _monthsToLoad; i++) {
-      // print("Loading historical month: ${startDate.millisecondsSinceEpoch} - ${endDate.millisecondsSinceEpoch}");
+      // print("Loading historical month: $startDate - $endDate");
       final future = widget.moodRepo.getMoods(startDate, endDate);
       List<Mood> moods = await future;
       months.add(_MonthData.fromMonthData(startDate, moods));

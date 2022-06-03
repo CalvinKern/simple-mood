@@ -1,13 +1,16 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_mood/db/db_helper.dart';
 import 'package:simple_mood/db/tables/mood_table.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
+import 'package:simple_mood/repos/prefs_repo.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 
 const _platform = const MethodChannel(NotificationChannel.CHANNEL);
@@ -48,17 +51,26 @@ class NotificationChannel {
   static Future _addRating(MethodCall call) async {
     final args = call.arguments as List<Object>? ?? List.empty();
     final rating = args.length > 0 ? args[0] as int : -1;
-    final time = args.length > 1 ? args[1] as int : DateTime.now().millisecondsSinceEpoch;
+    final milliseconds = args.length > 1 ? args[1] as int : DateTime.now().millisecondsSinceEpoch;
 
-    // final x = DateTime.fromMillisecondsSinceEpoch(time);
-    // print("SimpleMood: _addRating for time ${x.fullFormat()}");
+    // Manually convert milliseconds time to utc time to handle time issues
+    final time = DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: false);
+    final utcTime = DateTime.utc(time.year, time.month, time.day, time.hour, time.minute);
 
     // Can't get our repo through provider, so create the repo ourselves
     await MoodRepo(MoodTable(db: await DbHelper().getDatabase()))
-        .create(MoodRating.ratings.elementAt(rating), date: DateTime.fromMillisecondsSinceEpoch(time, isUtc: true));
+        .create(MoodRating.ratings.elementAt(rating), date: utcTime);
 
+    final prefs = await SharedPreferences.getInstance();
+    final storedTime = PrefsRepo(prefs: prefs).getDailyReminderTime() ?? TimeOfDay(hour: time.hour, minute: time.minute);
     final title = AppLocalizations().dailyReminderNotificationTitle;
-    return title;
+    final nextTime = DateTime(utcTime.year, utcTime.month, utcTime.day + 1, storedTime.hour, storedTime.minute);
+    // print("SimpleMood: _addRating for time (Non/Utc/Next) $time --- $utcTime --- $nextTime");
+
+    return jsonEncode(<String, dynamic>{
+      KEY_NOTIFICATION_TITLE: title,
+      KEY_NOTIFICATION_TIME: nextTime.millisecondsSinceEpoch,
+    });
   }
 
   /// Platform channel to set the daily notification
@@ -71,6 +83,7 @@ class NotificationChannel {
 
     final now = DateTime.now();
     DateTime? nextTime = time == null ? null : DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    // print("SimpleMood: Setting daily notification -- $nextTime");
     if (nextTime != null && (now.isAfter(nextTime) || skipToday)) {
       nextTime = nextTime.add(Duration(days: 1));
     }

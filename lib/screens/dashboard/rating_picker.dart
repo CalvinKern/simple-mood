@@ -43,6 +43,7 @@ class RatingPicker {
   }
 
   static void _addMood(BuildContext context, Mood oldMood, MoodRating rating, bool popOnRate) async {
+    // print("SimpleMood: Adding mood for date ${oldMood.date} --- Old rating: ${oldMood.rating.name} === New rating ${rating.name}");
     // If it's not missing, we need to update. Otherwise we create and delay notifications (if rated today)
     if (oldMood.rating != MoodRating.missing) {
       await Provider.of<MoodRepo>(context, listen: false).updateMood(oldMood.rebuild((b) => b..rating = rating));
