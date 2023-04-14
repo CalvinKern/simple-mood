@@ -23,7 +23,7 @@ class MoodApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final analytics = FirebaseAnalytics();
+    final analytics = FirebaseAnalytics.instance;
     return MultiProvider(
       providers: [
         Provider.value(value: analytics),

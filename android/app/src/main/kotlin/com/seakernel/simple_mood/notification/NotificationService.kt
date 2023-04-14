@@ -77,7 +77,7 @@ class NotificationService : JobIntentService() {
                         NotificationPlugin.updateDailyNotification(applicationContext, update)
                     }
 
-                    override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {}
+                    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {}
 
                     override fun notImplemented() {}
                 }
