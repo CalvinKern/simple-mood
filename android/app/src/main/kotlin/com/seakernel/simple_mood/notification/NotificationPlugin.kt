@@ -157,7 +157,7 @@ object NotificationPlugin {
             putExtra(EXTRA_ID_CHANNEL, data.channelId.name)
         }
         val flag = if (safetyCheck) PendingIntent.FLAG_NO_CREATE else PendingIntent.FLAG_UPDATE_CURRENT
-        return PendingIntent.getBroadcast(context, data.requestCode, notificationIntent, flag)
+        return PendingIntent.getBroadcast(context, data.requestCode, notificationIntent, PendingIntent.FLAG_IMMUTABLE or flag)
     }
 
     private fun deleteNotification(context: Context, prefsKey: String, intent: PendingIntent) {

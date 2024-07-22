@@ -19,8 +19,8 @@ class _DashboardContainerState extends State<DashboardContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final weekHeight =
-        (Theme.of(context).primaryTextTheme.headline6?.fontSize ?? 12) + 12; // 8 padding top/bottom, plus 4 for Text offset
+    final weekHeight = (Theme.of(context).primaryTextTheme.titleLarge?.fontSize ?? 12) +
+        12; // 8 padding top/bottom, plus 4 for Text offset
     return Scaffold(
       appBar: AppBar(
         // TODO: Can this animate height change if it's a sliver app bar?
@@ -34,8 +34,7 @@ class _DashboardContainerState extends State<DashboardContainer> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: AppLocalizations.of(context).pageHome),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today), label: AppLocalizations.of(context).pageCalendar),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: AppLocalizations.of(context).pageCalendar),
           BottomNavigationBarItem(icon: Icon(Icons.article_rounded), label: AppLocalizations.of(context).pageList),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: AppLocalizations.of(context).pageSettings),
         ],
@@ -75,7 +74,7 @@ class _WeekHeader extends StatelessWidget {
             child: Text(
               symbols[day],
               textAlign: TextAlign.center,
-              style: Theme.of(context).primaryTextTheme.headline6,
+              style: Theme.of(context).primaryTextTheme.titleLarge,
             ),
           ),
         );

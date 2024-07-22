@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
@@ -6,7 +7,6 @@ import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/dashboard/delete_dialog.dart';
 import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class CalendarPage extends StatelessWidget {
   @override
@@ -54,16 +54,16 @@ class _CalendarBodyState extends State<_CalendarBody> {
     _future = _getHistoricalMoods();
 
     // TODO: Could also check if _doneLoading by seeing if we're at _oldestDate as well
-    _doneLoading = _monthsToLoad < _DEFAULT_MONTH_COUNT; // We're done loading if our months to load is less than 3 (otherwise, we always check)
+    _doneLoading = _monthsToLoad <
+        _DEFAULT_MONTH_COUNT; // We're done loading if our months to load is less than 3 (otherwise, we always check)
   }
 
   Widget _errorWidget(String message) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(message, textAlign: TextAlign.center),
-      )
-    );
+        child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Text(message, textAlign: TextAlign.center),
+    ));
   }
 
   @override
@@ -167,8 +167,7 @@ class __CalendarListState extends State<_CalendarList> {
   }
 
   void _onScroll() {
-    if (isLoading ||
-        _controller.position.extentAfter > _LoadingWidget.LOADING_HEIGHT) {
+    if (isLoading || _controller.position.extentAfter > _LoadingWidget.LOADING_HEIGHT) {
       return;
     }
     isLoading = true;
@@ -216,7 +215,8 @@ class _MoodMonth extends StatelessWidget {
     }
     return Column(
       children: [
-        Text(buildMonth.start.monthFormat(now: DateTime.now()) ?? "", style: Theme.of(context).textTheme.headline4),
+        Text(buildMonth.start.monthFormat(now: DateTime.now()) ?? "",
+            style: Theme.of(context).textTheme.headlineMedium),
         ...buildMonth.moodsByWeek.map((moods) => _MoodWeek(moods: moods)).toList(),
       ],
     );
@@ -308,10 +308,7 @@ class _MonthData {
     // Add any existing moods
     moods.forEach((element) {
       if (element != null) {
-        final day = element.date
-            .toMidnight()
-            .difference(firstDayOfWeek)
-            .inDays;
+        final day = element.date.toMidnight().difference(firstDayOfWeek).inDays;
         weekMoods[day] = element;
       }
     });

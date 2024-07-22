@@ -4,7 +4,7 @@ import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
 import 'package:simple_mood/screens/dashboard/charts/dashboard_card.dart';
-import 'package:simple_mood/screens/dashboard/charts/pie_chart.dart';
+import 'package:simple_mood/screens/dashboard/charts/simple_pie_chart.dart';
 import 'package:simple_mood/screens/dashboard/charts/time_chart.dart';
 import 'package:simple_mood/screens/dashboard/rating_picker.dart';
 import 'package:simple_mood/screens/extensions/ui_extensions.dart';
@@ -92,7 +92,12 @@ class _Charts extends StatelessWidget {
   final _TimePeriod period;
   final Function(_TimePeriod) onTimePeriodChanged;
 
-  const _Charts({Key? key, required this.moods, this.neverMood = true, this.period = _TimePeriod.week, required this.onTimePeriodChanged})
+  const _Charts(
+      {Key? key,
+      required this.moods,
+      this.neverMood = true,
+      this.period = _TimePeriod.week,
+      required this.onTimePeriodChanged})
       : super(key: key);
 
   @override
@@ -100,14 +105,16 @@ class _Charts extends StatelessWidget {
     final noSelectedMoods = moods.isEmpty;
     // Reuse noSelectedMoods here as a safety check before calling .last
     final notRatedToday = noSelectedMoods || moods.last.date.isBefore(DateTime.now().toMidnight()) == true;
-    final periodPicker = _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period));
+    final periodPicker =
+        _PeriodPicker(selectedPeriod: period, onPeriodSelected: (period) => onTimePeriodChanged(period));
 
     return ListView(
       children: [
         if (noSelectedMoods || notRatedToday) RatingPicker.asTodayCard(context),
         if (!neverMood) periodPicker,
-        if (noSelectedMoods) _EmptyMood(neverMood: neverMood)
-        else ...[TimeChart(moods: moods), PieChart(moods: moods)]
+        if (noSelectedMoods)
+          _EmptyMood(neverMood: neverMood)
+        else ...[TimeChart(moods: moods), SimplePieChart(moods: moods)]
       ],
     );
   }
@@ -124,7 +131,7 @@ class _EmptyMood extends StatelessWidget {
       child: Text(
         neverMood ? AppLocalizations.of(context).neverMoods : AppLocalizations.of(context).noMoods,
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headline4,
+        style: Theme.of(context).textTheme.headlineMedium,
       ),
     );
   }
@@ -166,7 +173,7 @@ class _PeriodPicker extends StatelessWidget {
   Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => TextButton(
         child: Text(period),
         onPressed: onPressed,
-        style: TextButton.styleFrom(primary: Theme.of(context).textTheme.headline4?.color),
+        style: TextButton.styleFrom(backgroundColor: Theme.of(context).textTheme.headlineMedium?.color),
       );
 }
 

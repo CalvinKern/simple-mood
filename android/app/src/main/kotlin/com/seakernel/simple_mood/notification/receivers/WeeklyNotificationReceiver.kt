@@ -25,7 +25,7 @@ class WeeklyNotificationReceiver : BroadcastReceiver() {
         NotificationPlugin.setupNotificationChannel(context, channelId)
 
         val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
                 .setContentTitle(title)
                 .setSmallIcon(R.drawable.ic_notification)

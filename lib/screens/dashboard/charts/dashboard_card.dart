@@ -17,7 +17,7 @@ class DashboardCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
-            child: Text(title, style: Theme.of(context).textTheme.headline4),
+            child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
           ),
           Padding(
             padding: const EdgeInsets.all(8),

@@ -1,14 +1,17 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+    id "com.google.firebase.crashlytics"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
     }
-}
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -28,13 +31,14 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 android {
-    compileSdk 33
+    compileSdk 34
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -49,8 +53,8 @@ android {
 
     defaultConfig {
         applicationId "com.seakernel.simple_mood"
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -83,14 +87,6 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.firebase:firebase-analytics:21.2.2'
-
-    // TODO: Include this for local, native plugin crashes? Or do we get this for free? If not, how do we sync with the flutter version?
-//    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.firebase:firebase-analytics:22.0.2'
 }
-
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.gms.google-services'

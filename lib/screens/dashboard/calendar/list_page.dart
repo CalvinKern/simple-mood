@@ -20,7 +20,7 @@ class _MoodList extends StatelessWidget {
         child: Text(
           AppLocalizations.of(context).noMoods,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headline4,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
       );
     }
@@ -76,15 +76,17 @@ class _ListPageBody extends StatelessWidget {
     final Future<List<Mood>> moodFuture = moodRepo.getOldestMood().then((value) async {
       return value != null ? await moodRepo.getMoods(value.date, DateTime.now()) : List<Mood>.empty();
     });
-    return FutureBuilder(future: moodFuture, builder: (context, AsyncSnapshot<List<Mood>> snapshot) {
-      if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Padding(padding: EdgeInsets.all(16), child: Text("Failed to load")));
-      } else {
-        return _MoodList(moods: snapshot.data?.reversed.toList());
-      }
-    },);
+    return FutureBuilder(
+      future: moodFuture,
+      builder: (context, AsyncSnapshot<List<Mood>> snapshot) {
+        if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Padding(padding: EdgeInsets.all(16), child: Text("Failed to load")));
+        } else {
+          return _MoodList(moods: snapshot.data?.reversed.toList());
+        }
+      },
+    );
   }
 }
-

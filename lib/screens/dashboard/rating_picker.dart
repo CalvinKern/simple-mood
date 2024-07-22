@@ -18,7 +18,10 @@ class RatingPicker {
       chartHeight: 96,
       child: _ratingButtons(
         context,
-        Mood((b) => b..id = 0..date = DateTime.now()..rating = MoodRating.missing),
+        Mood((b) => b
+          ..id = 0
+          ..date = DateTime.now()
+          ..rating = MoodRating.missing),
         horizontalPadding: 4,
       ),
     );
@@ -70,10 +73,11 @@ class _RatingDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(AppLocalizations.of(context).editMood(mood.date.readableFormat())),
-      content: Flex(direction: Axis.horizontal, children: [RatingPicker._ratingButtons(context, mood, popOnRate: true)]),
+      content:
+          Flex(direction: Axis.horizontal, children: [RatingPicker._ratingButtons(context, mood, popOnRate: true)]),
       actions: [
         TextButton(
-          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
+          style: TextButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary),
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel.toUpperCase()),
           onPressed: () => Navigator.of(context).pop(),
         )

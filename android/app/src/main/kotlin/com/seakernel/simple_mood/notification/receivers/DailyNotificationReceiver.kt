@@ -60,7 +60,7 @@ class DailyNotificationReceiver : BroadcastReceiver() {
                 putExtra(NotificationPlugin.EXTRA_DATE, time)
             }
             // Use the imageId as the request code so they don't overwrite each other with the same code
-            val pendingIntent = PendingIntent.getBroadcast(context, imageId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, imageId, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             expanded.setOnClickPendingIntent(imageId, pendingIntent)
         }
 

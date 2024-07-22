@@ -1,4 +1,4 @@
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
@@ -8,16 +8,16 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 /// Mood Count Pie Chart
 ///
 /// Generates series data from list of moods using the factory constructor.
-class PieChart extends StatelessWidget {
-  final List<charts.Series<_PieCountData, int>> data;
+class SimplePieChart extends StatelessWidget {
+  final List<Series<_PieCountData, int>> data;
 
-  PieChart._internal({required this.data, Key? key}) : super(key: key);
+  SimplePieChart._internal({required this.data, Key? key}) : super(key: key);
 
-  factory PieChart({required List<Mood> moods, Key? key}) {
-    return PieChart._internal(data: _convertMoodData(moods), key: key);
+  factory SimplePieChart({required List<Mood> moods, Key? key}) {
+    return SimplePieChart._internal(data: _convertMoodData(moods), key: key);
   }
 
-  static List<charts.Series<_PieCountData, int>> _convertMoodData(List<Mood> moods) {
+  static List<Series<_PieCountData, int>> _convertMoodData(List<Mood> moods) {
     // Generate chart data, count each rating usage in the given moods list
     final counts = Map<MoodRating, int>();
     moods.forEach((mood) => counts[mood.rating] = (counts[mood.rating] ?? 0) + 1);
@@ -29,10 +29,10 @@ class PieChart extends StatelessWidget {
 
     // TODO: Should use some kind of label for a11y, not just rating color
     return [
-      charts.Series<_PieCountData, int>(
+      Series<_PieCountData, int>(
         id: _PieCountData.ID,
         data: data,
-        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(mood.rating.materialColor()),
+        colorFn: (mood, _) => ColorUtil.fromDartColor(mood.rating.materialColor()),
         domainFn: (mood, _) => mood.rating.index(),
         measureFn: (mood, _) => mood.count,
         labelAccessorFn: (mood, _) => mood.count.toString(),
@@ -42,19 +42,21 @@ class PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorOnBackground = Theme.of(context).textTheme.headline4?.color ?? Colors.grey;
-    final insideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.Color.black);
-    final outsideLabelStyle = charts.TextStyleSpec(fontSize: 12, color: charts.ColorUtil.fromDartColor(colorOnBackground));
+    final colorOnBackground = Theme.of(context).textTheme.headlineMedium?.color ?? Colors.grey;
+    final insideLabelStyle = TextStyleSpec(fontSize: 12, color: Color.black);
+    final outsideLabelStyle = TextStyleSpec(fontSize: 12, color: ColorUtil.fromDartColor(colorOnBackground));
     return DashboardCard(
       title: AppLocalizations.of(context).moodCount,
-      child: charts.PieChart<int>(
+      child: PieChart<int>(
         data,
-        defaultRenderer: charts.ArcRendererConfig(arcRendererDecorators: [
-          charts.ArcLabelDecorator(
-            insideLabelStyleSpec: insideLabelStyle,
-            outsideLabelStyleSpec: outsideLabelStyle,
-          )
-        ]),
+        defaultRenderer: ArcRendererConfig(
+          arcRendererDecorators: [
+            ArcLabelDecorator(
+              insideLabelStyleSpec: insideLabelStyle,
+              outsideLabelStyleSpec: outsideLabelStyle,
+            )
+          ],
+        ),
       ),
     );
   }

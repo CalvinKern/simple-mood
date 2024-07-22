@@ -1,4 +1,4 @@
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:community_charts_flutter/community_charts_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/models/mood.dart';
@@ -10,7 +10,7 @@ import 'package:simple_mood/screens/extensions/ui_extensions.dart';
 ///
 /// Generates series data from list of moods using the factory constructor.
 class TimeChart extends StatelessWidget {
-  final List<charts.Series<_TimeChartData, DateTime>> data;
+  final List<Series<_TimeChartData, DateTime>> data;
 
   TimeChart._internal({required this.data, Key? key}) : super(key: key);
 
@@ -18,16 +18,16 @@ class TimeChart extends StatelessWidget {
     return TimeChart._internal(data: _convertMoodData(moods), key: key);
   }
 
-  static List<charts.Series<_TimeChartData, DateTime>> _convertMoodData(List<Mood> moods) {
+  static List<Series<_TimeChartData, DateTime>> _convertMoodData(List<Mood> moods) {
     final moodData = moods.map((mood) => _TimeChartData(mood)).toList();
     // TODO: Can use two series here, one for doing colors (offset by .5 so that the color changing is _better_) and one
     // that is just the data points (custom decorator that only draws points for that series)
     // This may still look slightly off though, since a 1 - 5 jump might look weird.
     return [
-      charts.Series<_TimeChartData, DateTime>(
+      Series<_TimeChartData, DateTime>(
         id: _TimeChartData.ID,
         data: moodData,
-        colorFn: (mood, _) => charts.ColorUtil.fromDartColor(MoodTheme.primarySwatch()),
+        colorFn: (mood, _) => ColorUtil.fromDartColor(MoodTheme.primarySwatch()),
         domainFn: (mood, _) => mood.date.toMidnight(),
         measureFn: (mood, _) => mood.rating,
       ),
@@ -36,7 +36,7 @@ class TimeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chartTimeFormatter = charts.TimeFormatterSpec(format: 'd', transitionFormat: 'MMMd', noonFormat: '');
+    final chartTimeFormatter = TimeFormatterSpec(format: 'd', transitionFormat: 'MMMd', noonFormat: '');
     return DashboardCard(
       title: AppLocalizations.of(context).moodChart,
       child: Row(
@@ -51,24 +51,24 @@ class TimeChart extends StatelessWidget {
           ),
           Flexible(
             // TODO: Add support for showing date when clicking a data point: https://github.com/google/charts/issues/58
-            child: charts.TimeSeriesChart(
+            child: TimeSeriesChart(
               data,
-              defaultRenderer: charts.LineRendererConfig(includePoints: true),
-              domainAxis: charts.DateTimeAxisSpec(
-                renderSpec: charts.SmallTickRendererSpec<DateTime>(
-                  labelStyle: charts.TextStyleSpec(
-                    color: charts.ColorUtil.fromDartColor(Theme.of(context).textTheme.headline4?.color ?? Colors.grey),
+              defaultRenderer: LineRendererConfig(includePoints: true),
+              domainAxis: DateTimeAxisSpec(
+                renderSpec: SmallTickRendererSpec<DateTime>(
+                  labelStyle: TextStyleSpec(
+                    color: ColorUtil.fromDartColor(Theme.of(context).textTheme.headlineMedium?.color ?? Colors.grey),
                   ),
                 ),
-                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                tickFormatterSpec: AutoDateTimeTickFormatterSpec(
                   hour: chartTimeFormatter,
                   minute: chartTimeFormatter,
                 ),
               ),
-              primaryMeasureAxis: charts.NumericAxisSpec(
-                viewport: charts.NumericExtents.fromValues([1.0, 5.0]),
-                tickFormatterSpec: charts.BasicNumericTickFormatterSpec((_) => ''), // No axis label, use faces instead
-                tickProviderSpec: charts.BasicNumericTickProviderSpec(
+              primaryMeasureAxis: NumericAxisSpec(
+                viewport: NumericExtents.fromValues([1.0, 5.0]),
+                tickFormatterSpec: BasicNumericTickFormatterSpec((_) => ''), // No axis label, use faces instead
+                tickProviderSpec: BasicNumericTickProviderSpec(
                   zeroBound: false,
                   dataIsInWholeNumbers: true,
                   desiredTickCount: 5,
