@@ -184,7 +184,7 @@ object NotificationPlugin {
 //        Log.d("SimpleMoodNative", "Set alarm for date: $time")
 
         val type = AlarmManager.RTC_WAKEUP
-        getAlarmManager(context).setInexactRepeating(type, notification.time, interval, intent)
+        getAlarmManager(context).setInexactRepeating(type, notification.time ?: System.currentTimeMillis(), interval, intent)
     }
 
     private fun resetAlarm(context: Context, notification: MoodNotification, data: NotificationData) {
@@ -199,9 +199,9 @@ object NotificationPlugin {
 
     // Returns the given time at an interval past now, or the time if it's after now.
     // Used for weekly only, daily always gets set each time a rating happens, weekly only gets set once.
-    private fun validateDate(time: Long, interval: Long): Long {
+    private fun validateDate(time: Long?, interval: Long): Long {
         val currentTime = System.currentTimeMillis()
-        var start = time
+        var start = time ?: currentTime
         while (start < currentTime) {
             start += interval
         }

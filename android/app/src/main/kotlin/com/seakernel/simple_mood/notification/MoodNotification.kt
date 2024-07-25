@@ -5,10 +5,10 @@ import io.flutter.plugin.common.MethodCall
 import org.json.JSONObject
 import java.io.Serializable
 
-data class MoodNotification(val title: String?, val time: Long, val callbackHandle: Long) : Serializable {
+data class MoodNotification(val title: String?, val time: Long?, val callbackHandle: Long) : Serializable {
     constructor(call: MethodCall) : this(
             call.argument<String>(FLUTTER_KEY_NOTIFICATION_TITLE),
-            call.argument<Long>(FLUTTER_KEY_NOTIFICATION_TIME)!!,
+            call.argument<Long>(FLUTTER_KEY_NOTIFICATION_TIME),
             call.argument<Long>(FLUTTER_KEY_CALLBACK_DISPATCHER)!!
     )
 

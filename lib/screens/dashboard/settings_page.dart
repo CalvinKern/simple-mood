@@ -1,5 +1,7 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_mood/l10n/AppLocalizations.dart';
 import 'package:simple_mood/repos/mood_repo.dart';
@@ -10,11 +12,16 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<PrefsRepo>(
-      builder: (context, prefs, _) {
-        if (prefs.readyToLoad() != true)
-          return Center(child: CircularProgressIndicator());
-        else
-          return _SettingsPage(prefs);
+      builder: (_, prefs, __) {
+        return FutureBuilder(
+          future: Permission.notification.isGranted,
+          builder: (context, hasNotificationPermission) {
+            if (prefs.readyToLoad() != true || hasNotificationPermission.connectionState != ConnectionState.done)
+              return Center(child: CircularProgressIndicator());
+            else
+              return _SettingsPage(prefs, hasNotificationPermission.data == true);
+          },
+        );
       },
     );
   }
@@ -22,14 +29,15 @@ class SettingsPage extends StatelessWidget {
 
 class _SettingsPage extends StatelessWidget {
   final PrefsRepo _prefs;
+  final bool hasNotificationPermission;
 
-  const _SettingsPage(this._prefs, {Key? key}) : super(key: key);
+  const _SettingsPage(this._prefs, this.hasNotificationPermission, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final dailyReminderTime = _prefs.getDailyReminderTime();
-    final weeklyReminderTime = _prefs.getWeeklyReminderTime();
+    final dailyReminderTime = hasNotificationPermission ? _prefs.getDailyReminderTime() : null;
+    final weeklyReminderTime = hasNotificationPermission ? _prefs.getWeeklyReminderTime() : null;
 
     return ListView(
       children: [
@@ -59,13 +67,27 @@ class _SettingsPage extends StatelessWidget {
     );
   }
 
-  void _onDailyReminderChanged(BuildContext context, bool on) async => _prefs.setDailyReminder(
-        title: AppLocalizations.of(context).dailyReminderNotificationTitle,
-        notificationOn: on,
-        hasRatedToday: await _hasRatedMoodToday(context),
-      );
+  Future<bool> _hasNotificationPermission() async {
+    if (await Permission.notification.isPermanentlyDenied) {
+      // Still worth it, but await openAppSettings won't actually wait for the settings to open and this app to gain focus again
+      await AppSettings.openAppSettings(type: AppSettingsType.notification, asAnotherTask: true);
+    }
+    return await Permission.notification.request().isGranted;
+  }
+
+  void _onDailyReminderChanged(BuildContext context, bool on) async {
+    if (on && !await _hasNotificationPermission()) return;
+
+    await _prefs.setDailyReminder(
+      title: AppLocalizations.of(context).dailyReminderNotificationTitle,
+      notificationOn: on,
+      hasRatedToday: await _hasRatedMoodToday(context),
+    );
+  }
 
   void _onDailyReminderTapped(BuildContext context, TimeOfDay dailyReminderTime) async {
+    if (!await _hasNotificationPermission()) return;
+
     final time = await showTimePicker(context: context, initialTime: dailyReminderTime);
     if (time == null) return; // Do nothing on a cancel
 
@@ -76,12 +98,18 @@ class _SettingsPage extends StatelessWidget {
     );
   }
 
-  void _onWeeklyReminderChanged(BuildContext context, bool on) async => _prefs.setWeeklyReminder(
-        title: AppLocalizations.of(context).weeklyReminderNotificationTitle,
-        notificationOn: on,
-      );
+  void _onWeeklyReminderChanged(BuildContext context, bool on) async {
+    if (on && !await _hasNotificationPermission()) return;
+
+    _prefs.setWeeklyReminder(
+      title: AppLocalizations.of(context).weeklyReminderNotificationTitle,
+      notificationOn: on,
+    );
+  }
 
   void _onWeeklyReminderTapped(BuildContext context, TimeOfDay reminderTime) async {
+    if (!await _hasNotificationPermission()) return;
+
     final time = await showTimePicker(context: context, initialTime: reminderTime);
     if (time == null) return; // Do nothing on a cancel
 
