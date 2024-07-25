@@ -3,36 +3,15 @@ import 'package:flutter/material.dart';
 class MoodTheme {
   const MoodTheme();
 
-  ThemeData lightTheme() {
+  ThemeData configure(bool isLightMode) {
     return ThemeData(
-      brightness: Brightness.light,
-      primarySwatch: primarySwatch(),
+      brightness: isLightMode ? Brightness.light : Brightness.dark,
+      colorSchemeSeed: primarySwatch(),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: primarySwatch(),
-        unselectedItemColor: Colors.grey.shade700,
+        unselectedItemColor: isLightMode ? Colors.grey.shade700 : Colors.grey.shade400,
       ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
-    );
-  }
-
-  ThemeData darkTheme() {
-    return ThemeData(
-      brightness: Brightness.dark,
-      primarySwatch: primarySwatch(),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: primarySwatch(),
-        unselectedItemColor: Colors.grey.shade400,
-      ),
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      // A warning shows when using the dark theme including this hides the warning:
-      /// I/flutter (25920): Warning: The support for configuring the foreground
-      /// color of FloatingActionButtons using ThemeData.accentIconTheme has been
-      /// deprecated. Please use ThemeData.floatingActionButtonTheme instead.
-      /// See https://flutter.dev/go/remove-fab-accent-theme-dependency.
-      /// This feature was deprecated after v1.13.2.
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        foregroundColor: Colors.black,
-      ),
     );
   }
 

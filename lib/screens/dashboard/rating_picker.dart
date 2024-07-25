@@ -29,7 +29,7 @@ class RatingPicker {
 
   static Widget _ratingButtons(BuildContext context, Mood mood, {double? horizontalPadding, bool popOnRate = false}) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: MoodRating.ratings
@@ -73,11 +73,9 @@ class _RatingDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(AppLocalizations.of(context).editMood(mood.date.readableFormat())),
-      content:
-          Flex(direction: Axis.horizontal, children: [RatingPicker._ratingButtons(context, mood, popOnRate: true)]),
+      content: RatingPicker._ratingButtons(context, mood, popOnRate: true),
       actions: [
         TextButton(
-          style: TextButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.secondary),
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel.toUpperCase()),
           onPressed: () => Navigator.of(context).pop(),
         )

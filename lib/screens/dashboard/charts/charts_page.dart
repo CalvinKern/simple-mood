@@ -165,7 +165,7 @@ class _PeriodPicker extends StatelessWidget {
     );
   }
 
-  Widget _getSelectedButton(BuildContext context, String period, Function() onPressed) => ElevatedButton(
+  Widget _getSelectedButton(BuildContext context, String period, Function() onPressed) => FilledButton(
         child: Text(period),
         onPressed: onPressed,
       );
@@ -173,7 +173,6 @@ class _PeriodPicker extends StatelessWidget {
   Widget _getUnselectedButton(BuildContext context, String period, Function() onPressed) => TextButton(
         child: Text(period),
         onPressed: onPressed,
-        style: TextButton.styleFrom(backgroundColor: Theme.of(context).textTheme.headlineMedium?.color),
       );
 }
 

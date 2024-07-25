@@ -1,5 +1,4 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -31,8 +30,8 @@ class MoodApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: AppLocalizations().appName,
-        theme: theme.lightTheme(),
-        darkTheme: theme.darkTheme(),
+        theme: theme.configure(true),
+        darkTheme: theme.configure(false),
         navigatorObservers: [
           FirebaseAnalyticsObserver(analytics: analytics),
         ],
